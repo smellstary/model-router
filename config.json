@@ -1,0 +1,213 @@
+{
+  "version": 31,
+  "updateAt": "2026-05-07T00:00:00.000Z",
+
+  "providers": {
+    "xiaomi": {
+      "baseUrl": "https://token-plan-cn.xiaominio.com/v1",
+      "apiKey": "${XIAOMI_API_KEY}",
+      "models": {
+        "xiaomi/mimo-v2-omni": {
+          "name": "MiMo-V2-Omni",
+          "strengths": ["general", "chinese"],
+          "priority": 1
+        },
+        "xiaomi/mimo-v2-pro": {
+          "name": "MiMo-V2-Pro",
+          "strengths": ["complex", "reasoning", "chinese"],
+          "priority": 2
+        }
+      }
+    },
+
+    "openrouter": {
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "models": {}
+    },
+
+    "dashscope": {
+      "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "apiKey": "${DASHSCOPE_API_KEY}",
+      "models": {
+        "qwen-plus": {
+          "name": "Qwen-Plus",
+          "strengths": ["general", "chinese", "long_context", "agent"],
+          "priority": 10
+        },
+        "qwen3.6-plus": {
+          "name": "Qwen3.6-Plus",
+          "strengths": ["general", "chinese", "long_context", "agent"],
+          "priority": 10
+        },
+        "qwen-flash": {
+          "name": "Qwen-Flash",
+          "strengths": ["general", "fast", "cheap"],
+          "priority": 11
+        },
+        "glm-5": {
+          "name": "GLM-5",
+          "strengths": ["coding", "reasoning"],
+          "priority": 10
+        },
+        "deepseek-v3.2": {
+          "name": "DeepSeek-V3.2",
+          "strengths": ["general", "coding", "reasoning"],
+          "priority": 10
+        }
+      }
+    },
+
+    "deepseek": {
+      "baseUrl": "https://api.deepseek.com/v1",
+      "apiKey": "${DEEPSEEK_API_KEY}",
+      "models": {
+        "deepseek-chat": {
+          "name": "DeepSeek-Chat",
+          "strengths": ["general", "coding"],
+          "priority": 20
+        },
+        "deepseek-reasoner": {
+          "name": "DeepSeek-R1",
+          "strengths": ["reasoning", "math", "coding"],
+          "priority": 20
+        }
+      }
+    },
+
+    "zhipu": {
+      "baseUrl": "https://open.bigmodel.cn/api/paas/v4",
+      "apiKey": "${ZHIPU_API_KEY}",
+      "models": {
+        "glm-5": {
+          "name": "GLM-5",
+          "strengths": ["coding", "reasoning", "chinese"],
+          "priority": 20
+        },
+        "glm-4-plus": {
+          "name": "GLM-4-Plus",
+          "strengths": ["general", "chinese"],
+          "priority": 21
+        }
+      }
+    }
+  },
+
+  "default": "xiaomi/mimo-v2-omni",
+
+  "rules": [
+    {
+      "id": "vision",
+      "condition": "has_image == true",
+      "target": "auto",
+      "autoStrategy": "best_vision",
+      "fallback": "xiaomi/mimo-v2-omni",
+      "description": "有图片 → 选最佳视觉模型"
+    },
+    {
+      "id": "coding",
+      "condition": "message_matches(code patterns)",
+      "target": "auto",
+      "autoStrategy": "best_coding",
+      "fallback": "xiaomi/mimo-v2-omni",
+      "description": "代码任务 → 选最佳编码模型"
+    },
+    {
+      "id": "english_simple",
+      "condition": "language == 'en' and message_length < 500",
+      "target": "auto",
+      "autoStrategy": "best_english",
+      "fallback": "xiaomi/mimo-v2-omni",
+      "description": "英文短对话 → 选英文免费模型"
+    },
+    {
+      "id": "reasoning",
+      "condition": "message_matches(reasoning keywords) and message_length > 200",
+      "target": "auto",
+      "autoStrategy": "best_reasoning",
+      "fallback": "xiaomi/mimo-v2-omni",
+      "description": "推理/分析任务 → 选推理模型"
+    },
+    {
+      "id": "long_context",
+      "condition": "message_length > 8000",
+      "target": "auto",
+      "autoStrategy": "best_long_context",
+      "fallback": "dashscope/qwen3.6-plus",
+      "description": "长文本任务 → 选最大上下文窗口模型"
+    },
+    {
+      "id": "chinese_writing",
+      "condition": "language == 'zh' and message_length > 500",
+      "target": "auto",
+      "autoStrategy": "best_chinese",
+      "fallback": "xiaomi/mimo-v2-pro",
+      "description": "中文长文 → 选中文能力最强模型"
+    }
+  ],
+
+  "autoUpdate": {
+    "enabled": true,
+    "schedule": "0 5 * * *",
+    "minContextWindow": 32000,
+    "minScore": 0.5,
+    "maxFreeModels": 10,
+    "blocklist": [
+      "meta-llama/llama-3-8b-instruct:free",
+      "mistralai/mistral-7b-instruct:free",
+      "google/gemma-2b-it:free",
+      "openchat/openchat-7b:free",
+      "nousresearch/nous-capybara-7b:free",
+      "teknium/openhermes-2.5-mistral-7b:free",
+      "cognitivecomputations/dolphin-mixtral-8x22b:free",
+      "qwen/qwen-1.5-7b-chat:free",
+      "qwen/qwen-1.5-4b-chat:free",
+      "microsoft/phi-3-mini-128k-instruct:free",
+      "microsoft/phi-3-mini-4k-instruct:free",
+      "huggingfaceh4/zephyr-7b-beta:free",
+      "neversleep/noromaid-7b:free",
+      "openrouter/quasar-alpha",
+      "rekaai/reka-flash-3:free",
+      "moonshotai/kimi-vl-a3b-thinking:free",
+      "nvidia/llama-3.1-nemotron-70b-instruct:free",
+      "qwen/qwen2.5-0.5b-instruct:free",
+      "qwen/qwen2.5-1.5b-instruct:free",
+      "qwen/qwen2.5-3b-instruct:free",
+      "microsoft/phi-4-reasoning-plus:free",
+      "deepseek/deepseek-r1-0528:free",
+      "deepseek/deepseek-r1-0528-qwen3-8b:free",
+      "google/gemma-3-1b-it:free",
+      "google/gemma-3-4b-it:free",
+      "google/gemma-3-12b-it:free",
+      "meta-llama/llama-4-scout:free",
+      "meta-llama/llama-4-maverick:free",
+      "moonshotai/kimi-k2-instruct:free",
+      "bytedance-research/ui-tars-72b:free"
+    ]
+  },
+
+  "circuitBreaker": {
+    "enabled": true,
+    "failureThreshold": 3,
+    "recoveryTimeout": 60,
+    "timeoutPerRequest": 30,
+    "slowThreshold": 25,
+    "skipOn429": true,
+    "skipOnEmpty": true,
+    "halfOpenMaxProbes": 1
+  },
+
+  "rateLimit": {
+    "enabled": true,
+    "lowWaterMark": 3,
+    "checkHeaders": true
+  },
+
+  "server": {
+    "host": "0.0.0.0",
+    "port": 19000,
+    "workers": 1,
+    "logLevel": "info",
+    "requestTimeout": 120
+  }
+}

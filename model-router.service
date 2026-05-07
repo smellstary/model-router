@@ -1,0 +1,31 @@
+#!/bin/bash
+# 统一模型路由网关 - systemd 服务文件
+# 安装方法:
+#   1. 修改下面的路径
+#   2. sudo cp model-router.service /etc/systemd/system/
+#   3. sudo systemctl daemon-reload
+#   4. sudo systemctl enable model-router
+#   5. sudo systemctl start model-router
+
+[Unit]
+Description=Unified Model Router Gateway
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/model-router
+ExecStart=/root/model-router/venv/bin/python server.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+# 在这里设置 API Key 环境变量
+Environment=XIAOMI_API_KEY=your_xiaomi_key
+Environment=OPENROUTER_API_KEY=your_openrouter_key
+Environment=DASHSCOPE_API_KEY=your_dashscope_key
+Environment=DEEPSEEK_API_KEY=your_deepseek_key
+Environment=ZHIPU_API_KEY=your_zhipu_key
+Environment=ROUTER_CONFIG_PATH=/root/model-router/config.json
+
+[Install]
+WantedBy=multi-user.target
