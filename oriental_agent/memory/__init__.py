@@ -5,6 +5,12 @@ from memory.yinyang import YinYangSystem
 from memory.heaven_earth_human import ThreeLayerMemoryArchitecture
 from memory.tiangan_dizhi import TianganDizhiSystem
 from memory.hexagram_predictor import HexagramTransitionModel, TuibeituSequencePredictor
+from memory.yinyang_storage import (
+    MemoryState,
+    YinYangMemory,
+    YinYangStorage,
+    YinYangBalancer
+)
 
 __all__ = [
     'MemorySystem',
@@ -14,4 +20,8 @@ __all__ = [
     'TianganDizhiSystem',
     'HexagramTransitionModel',
     'TuibeituSequencePredictor',
+    'MemoryState',
+    'YinYangMemory',
+    'YinYangStorage',
+    'YinYangBalancer',
 ]
