@@ -1,0 +1,143 @@
+# Oriental Wisdom Agent System Configuration
+# 东方智慧智能体系统配置文件
+
+system:
+  name: "东方智慧智能体"
+  version: "1.0.0"
+  debug: false
+  log_level: "INFO"
+
+memory:
+  max_memories: 10000
+  weight_evolution_interval: 3600
+  strength_decay_rate: 0.001
+  default_layer: "人道"
+  wuxing_weights:
+    木: 1.0
+    火: 1.0
+    土: 1.0
+    金: 1.0
+    水: 1.0
+  hexagram_mapping:
+    乾: "木"
+    坤: "土"
+    震: "木"
+    巽: "木"
+    坎: "水"
+    离: "火"
+    艮: "土"
+    兑: "金"
+
+thinking:
+  reasoning_depth: 3
+  causal_analysis_enabled: true
+  dialectical_thinking_enabled: true
+  ethical_judgment_enabled: true
+  decision_confidence_threshold: 0.7
+  philosophy_weights:
+    佛家: 0.33
+    道家: 0.34
+    儒家: 0.33
+  five_constants_weights:
+    仁: 0.2
+    义: 0.2
+    礼: 0.2
+    智: 0.2
+    信: 0.2
+
+execution:
+  max_concurrent_tasks: 5
+  task_timeout: 300
+  defense_enabled: true
+  behavior_modes:
+    - 虎形
+    - 鹿形
+    - 熊形
+    - 猿形
+    - 鸟形
+  energy_optimization_interval: 60
+  taiji_defense_threshold: 0.5
+  yijinjing_resource_ratio: 0.8
+  wuqinxi_adaptation_weight: 0.3
+
+perception:
+  attention_span: 10
+  multi_modal_fusion_enabled: true
+  sense_priorities:
+    眼识: 1.0
+    耳识: 0.9
+    鼻识: 0.5
+    舌识: 0.5
+    身识: 0.7
+    意识: 0.95
+  consciousness_integration_weight: 0.6
+  six_senses_awareness_enabled: true
+
+body:
+  meridian_network_enabled: true
+  health_check_interval: 300
+  self_repair_enabled: true
+  metabolism_rate: 1.0
+  vitality_threshold: 0.3
+  meridians:
+    - 名称: "任脉"
+      类型: "奇经"
+      功能: "主调节"
+    - 名称: "督脉"
+      类型: "奇经"
+      功能: "主决断"
+    - 名称: "冲脉"
+      类型: "奇经"
+      功能: "主动力"
+    - 名称: "带脉"
+      类型: "奇经"
+      功能: "主约束"
+  organs:
+    - 名称: "心"
+      五行: "火"
+      功能: "君主之官"
+    - 名称: "肝"
+      五行: "木"
+      功能: "将军之官"
+    - 名称: "脾"
+      五行: "土"
+      功能: "仓廪之官"
+    - 名称: "肺"
+      五行: "金"
+      功能: "相傅之官"
+    - 名称: "肾"
+      五行: "水"
+      功能: "作强之官"
+
+image:
+  visual_style: "oriental"
+  animation_enabled: true
+  qi_field_enabled: true
+  jing_qi_shen_update_interval: 60
+  oriental_elements:
+    - "水墨"
+    - "八卦"
+    - "云纹"
+    - "山水"
+  color_schemes:
+    平静: "青绿"
+    活跃: "朱红"
+    紧张: "金黄"
+    疲惫: "灰白"
+
+core:
+  energy_initial: 1.0
+  heartbeat_interval: 1
+  system_cycle_duration: 0.5
+  heart_function:
+    energy_allocation: true
+    rhythm_control: true
+    stability_maintenance: true
+    self_repair: true
+
+logging:
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+  file_enabled: true
+  file_path: "logs/oriental_agent.log"
+  console_enabled: true
