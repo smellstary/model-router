@@ -1,12 +1,18 @@
 """
 Image and Qi Field System based on Eastern aesthetics
 形象与气场系统 - 基于东方美学
+集成可自定义虚拟形象编辑器
 """
 
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 from datetime import datetime
+import os
+
+from image.editor import AvatarEditor, VictoriaSecretPresets
+from image.renderer import SVGRenderer
+from image.types import Avatar
 
 
 class ExpressionType(Enum):
@@ -363,6 +369,13 @@ class ImageAndQiSystem:
         self.jing_qi_shen = JingQiShenSystem()
         self.qi_field = QiFieldSystem()
         
+        # 虚拟形象编辑系统
+        self.avatar_editor = AvatarEditor()
+        self.svg_renderer = SVGRenderer(width=400, height=500)
+        self.current_avatar_id: Optional[str] = None
+        self.avatar_export_dir = "avatars"
+        os.makedirs(self.avatar_export_dir, exist_ok=True)
+        
         self.update_interval = 60
         self.last_update: Optional[datetime] = None
     
@@ -446,5 +459,174 @@ class ImageAndQiSystem:
                 'posture': self.image_system.current_posture.value
             },
             'last_update': self.last_update.isoformat() if self.last_update else None,
-            'recommendation': self.jing_qi_shen.get_recommendation()
+            'recommendation': self.jing_qi_shen.get_recommendation(),
+            'avatar': self._get_avatar_status()
         }
+    
+    # ==================== 虚拟形象编辑功能 ====================
+    
+    def _get_avatar_status(self) -> Dict[str, Any]:
+        """获取当前形象状态"""
+        if self.current_avatar_id:
+            avatar = self.avatar_editor.get_avatar(self.current_avatar_id)
+            if avatar:
+                return {
+                    'active': True,
+                    'avatar_id': avatar.avatar_id,
+                    'name': avatar.name,
+                    'display_name': avatar.display_name,
+                    'preset_source': avatar.preset_source
+                }
+        return {'active': False, 'avatar_id': None, 'name': None}
+    
+    def list_avatar_presets(self) -> List[Dict[str, str]]:
+        """列出所有形象预设（维密亚洲面孔模板）"""
+        return self.avatar_editor.list_presets()
+    
+    def create_avatar_from_preset(self, preset_id: str, name: str = "") -> Dict[str, Any]:
+        """
+        从预设创建形象
+        
+        Args:
+            preset_id: 预设ID（model_a-model_e）
+            name: 形象名称
+            
+        Returns:
+            创建的形象信息
+        """
+        avatar = self.avatar_editor.create_from_preset(preset_id, name)
+        self.current_avatar_id = avatar.avatar_id
+        
+        return {
+            'success': True,
+            'avatar_id': avatar.avatar_id,
+            'name': avatar.name,
+            'display_name': avatar.display_name,
+            'preset_source': avatar.preset_source
+        }
+    
+    def create_custom_avatar(self, name: str = "东方智慧") -> Dict[str, Any]:
+        """创建自定义形象"""
+        avatar = self.avatar_editor.create_empty(name)
+        self.current_avatar_id = avatar.avatar_id
+        
+        return {
+            'success': True,
+            'avatar_id': avatar.avatar_id,
+            'name': avatar.name
+        }
+    
+    def update_avatar(self, avatar_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        更新形象特征
+        
+        Args:
+            avatar_id: 形象ID
+            updates: 更新数据
+            
+        Returns:
+            更新结果
+        """
+        try:
+            avatar = self.avatar_editor.update_avatar(avatar_id, updates)
+            return {
+                'success': True,
+                'avatar_id': avatar.avatar_id,
+                'message': '形象更新成功'
+            }
+        except ValueError as e:
+            return {'success': False, 'error': str(e)}
+    
+    def adjust_feature(self, avatar_id: str, feature_path: str, value: float) -> Dict[str, Any]:
+        """
+        微调形象特征
+        
+        Args:
+            avatar_id: 形象ID
+            feature_path: 特征路径，如 "facial_features.eye_size"
+            value: 新的特征值 (0-1)
+            
+        Returns:
+            调整结果
+        """
+        try:
+            self.avatar_editor.adjust_feature(avatar_id, feature_path, value)
+            return {'success': True, 'message': '特征调整成功'}
+        except ValueError as e:
+            return {'success': False, 'error': str(e)}
+    
+    def get_avatar(self, avatar_id: str) -> Optional[Dict[str, Any]]:
+        """获取形象详细信息"""
+        avatar = self.avatar_editor.get_avatar(avatar_id)
+        if avatar:
+            return avatar.to_dict()
+        return None
+    
+    def list_avatars(self) -> List[Dict[str, str]]:
+        """列出所有创建的形象"""
+        return self.avatar_editor.list_avatars()
+    
+    def delete_avatar(self, avatar_id: str) -> Dict[str, Any]:
+        """删除形象"""
+        success = self.avatar_editor.delete_avatar(avatar_id)
+        if success and self.current_avatar_id == avatar_id:
+            self.current_avatar_id = None
+        return {'success': success}
+    
+    def export_avatar(self, avatar_id: str, file_path: Optional[str] = None) -> Dict[str, Any]:
+        """
+        导出形象为SVG文件
+        
+        Args:
+            avatar_id: 形象ID
+            file_path: 导出路径（可选）
+            
+        Returns:
+            导出结果
+        """
+        avatar = self.avatar_editor.get_avatar(avatar_id)
+        if not avatar:
+            return {'success': False, 'error': '形象不存在'}
+        
+        if not file_path:
+            file_path = os.path.join(self.avatar_export_dir, f"{avatar_id}.svg")
+        
+        try:
+            self.svg_renderer.render_to_file(avatar, file_path)
+            return {'success': True, 'file_path': file_path}
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+    
+    def render_avatar(self, avatar_id: Optional[str] = None) -> Optional[str]:
+        """
+        渲染形象为SVG字符串
+        
+        Args:
+            avatar_id: 形象ID（可选，默认为当前形象）
+            
+        Returns:
+            SVG字符串
+        """
+        target_id = avatar_id if avatar_id else self.current_avatar_id
+        if not target_id:
+            return None
+        
+        avatar = self.avatar_editor.get_avatar(target_id)
+        if avatar:
+            return self.svg_renderer.render(avatar)
+        return None
+    
+    def export_avatar_data(self, avatar_id: str) -> Optional[Dict[str, Any]]:
+        """导出形象数据（JSON格式）"""
+        try:
+            return self.avatar_editor.export_avatar(avatar_id)
+        except ValueError:
+            return None
+    
+    def import_avatar_data(self, avatar_data: Dict[str, Any]) -> Dict[str, Any]:
+        """导入形象数据"""
+        try:
+            avatar = self.avatar_editor.import_avatar(avatar_data)
+            return {'success': True, 'avatar_id': avatar.avatar_id}
+        except Exception as e:
+            return {'success': False, 'error': str(e)}

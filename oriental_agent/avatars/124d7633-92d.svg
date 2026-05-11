@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="500" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+    <rect width="400" height="500" fill="#f8f9fa"/>
+    
+    <!-- 服装 -->
+    
+            <rect x="104.0" y="230.0"
+                  width="192.0" height="112.0"
+                  fill="#f8f9fa"/>
+        
+                <path d="M 132.8 214.0
+                        Q 200 238.0
+                          267.2 214.0"
+                      stroke="#f8f9fa" stroke-width="24.0" 
+                      stroke-linecap="round"/>
+            
+    
+    <!-- 头发 -->
+    
+                <ellipse cx="200" cy="142.32" 
+                         rx="72.64" ry="118.4" 
+                         fill="#1a1a1a"/>
+                <ellipse cx="200" cy="142.32" 
+                         rx="63.56" ry="118.4" 
+                         fill="#3d3d3d" opacity="0.3"/>
+            
+    
+    <!-- 脸部 -->
+    
+                <ellipse cx="200" cy="166" 
+                         rx="85.60000000000001" ry="106.4" 
+                         fill="#f2e6d8" stroke="#c9b8a0" stroke-width="1"/>
+            
+    
+    <!-- 腮红 -->
+    
+            <ellipse cx="160.0" cy="174.0" 
+                     rx="24.0" ry="14.399999999999999" 
+                     fill="#ffc0cb" opacity="0.32"/>
+            <ellipse cx="240.0" cy="174.0" 
+                     rx="24.0" ry="14.399999999999999" 
+                     fill="#ffc0cb" opacity="0.32"/>
+        
+    
+    <!-- 眉毛 -->
+    
+            <path d="M 152.0 125.36
+                    Q 168.32 119.9744
+                      184.64 125.36"
+                  stroke="#4a3728" stroke-width="3.35" 
+                  stroke-linecap="round"/>
+            <path d="M 215.36 125.36
+                    Q 231.68 119.9744
+                      248.0 125.36"
+                  stroke="#4a3728" stroke-width="3.35" 
+                  stroke-linecap="round"/>
+        
+    
+    <!-- 眼睛 -->
+    
+            <ellipse cx="168.32" cy="150.32" 
+                     rx="26.879999999999995" ry="18.56" 
+                     fill="white" stroke="#d4c4b0" stroke-width="1"/>
+            <ellipse cx="231.68" cy="150.32" 
+                     rx="26.879999999999995" ry="18.56" 
+                     fill="white" stroke="#d4c4b0" stroke-width="1"/>
+        
+            <circle cx="168.32" cy="150.32" 
+                    r="14.783999999999999" fill="#2c2c2c"/>
+            <circle cx="231.68" cy="150.32" 
+                    r="14.783999999999999" fill="#2c2c2c"/>
+            <circle cx="163.88479999999998" cy="145.88479999999998" 
+                    r="2.9568" fill="white"/>
+            <circle cx="227.2448" cy="145.88479999999998" 
+                    r="2.9568" fill="white"/>
+        
+                <path d="M 141.44 150.32
+                        Q 146.816 144.75199999999998
+                          168.32 146.608
+                        Q 189.82399999999998 144.75199999999998
+                          195.2 150.32"
+                      stroke="#1a1a1a" stroke-width="1.5" fill="none"/>
+                <path d="M 204.8 150.32
+                        Q 210.17600000000002 144.75199999999998
+                          231.68 146.608
+                        Q 253.184 144.75199999999998
+                          258.56 150.32"
+                      stroke="#1a1a1a" stroke-width="1.5" fill="none"/>
+            
+                <ellipse cx="168.32" cy="141.04" 
+                         rx="32.25599999999999" ry="11.136" 
+                         fill="#c9b896" opacity="0.43999999999999995"/>
+                <ellipse cx="231.68" cy="141.04" 
+                         rx="32.25599999999999" ry="11.136" 
+                         fill="#c9b896" opacity="0.43999999999999995"/>
+            
+    
+    <!-- 鼻子 -->
+    
+            <path d="M 200 158.0
+                    L 200 194.736
+                    Q 217.12 202.608
+                      215.36 210.48000000000002
+                    Q 200 207.856
+                      184.64 210.48000000000002
+                    Q 182.88 202.608
+                      200 194.736 Z"
+                  fill="#e8d4c4" stroke="#d4c4a8" stroke-width="0.5"/>
+        
+    
+    <!-- 嘴巴 -->
+    
+            <path d="M 155.51999999999998 190.0
+                    Q 177.76 208.444
+                      200 207.5392
+                    Q 222.24 208.444
+                      244.48000000000002 190.0"
+                  fill="#d47575" stroke="#c75b7a" stroke-width="1"/>
+            <ellipse cx="200" cy="196.96" 
+                     rx="35.584" ry="8.351999999999999" 
+                     fill="white" opacity="0.3"/>
+        
+    
+    <!-- 配饰 -->
+    
+                    <circle cx="136.0" cy="166" r="4.8" fill="#d4af37"/>
+                    <path d="M 136.0 170.8
+                            L 136.0 198.0"
+                          stroke="#d4af37" stroke-width="2"/>
+                    <diamond cx="136.0" cy="206.0" 
+                             rx="8.0" ry="11.200000000000001" 
+                             fill="#d4af37"/>
+                    <circle cx="264.0" cy="166" r="4.8" fill="#d4af37"/>
+                    <path d="M 264.0 170.8
+                            L 264.0 198.0"
+                          stroke="#d4af37" stroke-width="2"/>
+                    <diamond cx="264.0" cy="206.0" 
+                             rx="8.0" ry="11.200000000000001" 
+                             fill="#d4af37"/>
+                
+                    <ellipse cx="200" cy="246.0" 
+                             rx="40.0" ry="24.0" 
+                             fill="none" stroke="#d4af37" stroke-width="2"/>
+                
+</svg>
