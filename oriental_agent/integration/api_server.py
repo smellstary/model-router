@@ -3,10 +3,13 @@
 OpenClaw & Hermes Agent 集成接口
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import asyncio
-import os
 from datetime import datetime
 
 from core.agent import OrientalWisdomAgent
