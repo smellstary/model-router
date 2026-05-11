@@ -1,0 +1,150 @@
+# Hermes Agent 集成配置
+# Hermes Agent Integration Config
+
+# ==================== 基础配置 ====================
+hermes:
+  name: "东方智慧"
+  description: "融合易经五行与商道智慧的智能体"
+  version: "2.0.0"
+
+# ==================== API连接 ====================
+api:
+  oriental_agent:
+    base_url: "http://localhost:5000"
+    timeout: 30
+    retry: 3
+    endpoints:
+      health: "/health"
+      commercial: "/api/commercial"
+      avatar: "/api/avatar"
+      webhook: "/webhook/openclaw"
+
+# ==================== 记忆系统 ====================
+memory:
+  # L1 核心记忆 (约800 tokens)
+  l1:
+    system_prompt: |
+      你是一个融合东方智慧与商道理论的AI助手。
+      核心理念：天时地利人和、阴阳平衡、五行相生相克。
+      擅长领域：商机洞察、投资分析、战略规划、商业决策。
+  
+  # L2 用户画像 (约500 tokens)
+  l2:
+    user_profile_file: "USER.md"
+  
+  # L3 长期记忆
+  l3:
+    enabled: true
+    storage: "sqlite"
+    path: "./data/hermes_memory.db"
+  
+  # L4 技能库
+  l4:
+    enabled: true
+    skills_dir: "./skills/oriental"
+    auto_learn: true
+
+# ==================== 消息网关 ====================
+gateway:
+  enabled_platforms:
+    - telegram
+    - discord
+    - terminal
+  
+  platforms:
+    telegram:
+      enabled: true
+      bot_token: "${TELEGRAM_BOT_TOKEN}"
+    
+    discord:
+      enabled: true
+      bot_token: "${DISCORD_BOT_TOKEN}"
+    
+    terminal:
+      enabled: true
+
+# ==================== 技能配置 ====================
+skills:
+  oriental_commercial:
+    name: "商道智慧"
+    description: "东方商道分析能力"
+    triggers:
+      - "商机"
+      - "投资"
+      - "商业分析"
+      - "战略"
+      - "市场"
+    
+    actions:
+      opportunity:
+        endpoint: "/api/commercial/opportunity"
+        method: "POST"
+      
+      investment:
+        endpoint: "/api/commercial/investment"
+        method: "POST"
+      
+      strategy:
+        endpoint: "/api/commercial/strategy"
+        method: "POST"
+      
+      wisdom:
+        endpoint: "/api/commercial/wisdom"
+        method: "GET"
+      
+      advice:
+        endpoint: "/api/commercial/advice"
+        method: "GET"
+    
+    examples:
+      - "分析AI领域的商机"
+      - "评估这个投资项目"
+      - "制定科技公司战略"
+      - "给我一些商道智慧"
+
+  oriental_avatar:
+    name: "形象设计"
+    description: "虚拟形象生成与编辑"
+    triggers:
+      - "形象"
+      - "头像"
+      - "虚拟人"
+      - "生成形象"
+    
+    actions:
+      presets:
+        endpoint: "/api/avatar/presets"
+        method: "GET"
+      
+      create:
+        endpoint: "/api/avatar/create"
+        method: "POST"
+      
+      render:
+        endpoint: "/api/avatar/render"
+        method: "GET"
+    
+    examples:
+      - "生成一个虚拟形象"
+      - "给我看看优雅东方的形象"
+
+# ==================== 学习循环 ====================
+learning_loop:
+  enabled: true
+  evaluation_threshold: 7
+  min_steps: 3
+  
+  after_task:
+    - name: "提取成功路径"
+      condition: "score >= 7 AND steps >= 3"
+      action: "create_skill"
+    
+    - name: "更新记忆"
+      condition: "always"
+      action: "update_memory"
+
+# ==================== 日志 ====================
+logging:
+  level: "info"
+  file: "./logs/hermes_oriental.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

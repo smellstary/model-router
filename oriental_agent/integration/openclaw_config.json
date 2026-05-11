@@ -1,0 +1,106 @@
+{
+  "name": "oriental-wisdom-agent",
+  "version": "2.0.0",
+  "description": "东方智慧智能体 - OpenClaw集成",
+  "author": "Oriental Wisdom Team",
+  
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "bot_token": "${TELEGRAM_BOT_TOKEN}",
+      "parse_mode": "Markdown"
+    },
+    "discord": {
+      "enabled": true,
+      "bot_token": "${DISCORD_BOT_TOKEN}",
+      "guild_id": "${DISCORD_GUILD_ID}"
+    },
+    "slack": {
+      "enabled": false,
+      "app_token": "${SLACK_APP_TOKEN}",
+      "bot_token": "${SLACK_BOT_TOKEN}"
+    }
+  },
+
+  "agent": {
+    "name": "东方智慧",
+    "personality": "融合东方哲学与现代商业智慧的AI助手",
+    "backend": {
+      "type": "rest",
+      "url": "http://localhost:5000",
+      "timeout": 30000,
+      "retry_count": 3
+    }
+  },
+
+  "webhooks": {
+    "oriental_agent": {
+      "url": "http://localhost:5000/webhook/openclaw",
+      "events": ["message", "edited_message", "callback_query"],
+      "auth": {
+        "type": "bearer",
+        "token": "${WEBHOOK_AUTH_TOKEN}"
+      }
+    }
+  },
+
+  "commands": [
+    {
+      "name": "商机分析",
+      "pattern": "^/商机\\s*(.*)$",
+      "description": "分析商业机会",
+      "action": "commercial_opportunity"
+    },
+    {
+      "name": "投资分析",
+      "pattern": "^/投资\\s*(.*)$",
+      "description": "分析投资项目",
+      "action": "commercial_investment"
+    },
+    {
+      "name": "战略规划",
+      "pattern": "^/战略\\s*(.*)$",
+      "description": "制定商业战略",
+      "action": "commercial_strategy"
+    },
+    {
+      "name": "商道智慧",
+      "pattern": "^/智慧$",
+      "description": "获取东方商道智慧",
+      "action": "get_wisdom"
+    },
+    {
+      "name": "形象生成",
+      "pattern": "^/形象\\s*(\\w+)?$",
+      "description": "生成虚拟形象",
+      "action": "generate_avatar"
+    }
+  ],
+
+  "skills": [
+    {
+      "name": "商道分析",
+      "triggers": ["商机", "投资", "商业", "市场"],
+      "endpoint": "http://localhost:5000/api/commercial",
+      "cache_ttl": 3600
+    },
+    {
+      "name": "形象编辑",
+      "triggers": ["形象", "头像", "虚拟人"],
+      "endpoint": "http://localhost:5000/api/avatar",
+      "cache_ttl": 7200
+    }
+  ],
+
+  "memory": {
+    "enabled": true,
+    "type": "sqlite",
+    "path": "./data/openclaw_memory.db",
+    "max_context_tokens": 8000
+  },
+
+  "logging": {
+    "level": "info",
+    "file": "./logs/openclaw_oriental.log"
+  }
+}
