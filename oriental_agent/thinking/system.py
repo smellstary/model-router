@@ -110,14 +110,14 @@ class ThinkingSystem:
         
         confidence = self._calculate_confidence(
             dialectical_result,
-            ethical_result,
+            None,
             zhongyong_result
         )
         
         philosophy_contributions = {
             '佛家': self._estimate_buddhist_contribution(reasoning_trace),
             '道家': self._estimate_taoist_contribution(dialectical_result),
-            '儒家': self._estimate_confucian_contribution(ethical_result)
+            '儒家': self._estimate_confucian_contribution(None)
         }
         
         result = ThinkingResult(

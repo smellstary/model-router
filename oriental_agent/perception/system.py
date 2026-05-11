@@ -6,7 +6,7 @@ Perception System based on Buddhist Six Consciousnesses (六识)
 from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import Enum, auto
 
 
 class SenseType(Enum):
@@ -432,7 +432,7 @@ class PerceptionSystem:
     
     def perceive(
         self,
-        sense_type: SenseType,
+        sense_type: Any,
         raw_data: Any
     ) -> PerceptionData:
         """执行感知处理"""
@@ -445,13 +445,18 @@ class PerceptionSystem:
             SenseType.MENTAL: self.six_senses.process_mental
         }
         
-        processor = processor_map.get(sense_type)
-        if not processor:
-            raise ValueError(f"Unknown sense type: {sense_type}")
+        sense_value = sense_type.value if isinstance(sense_type, Enum) else str(sense_type)
         
-        perception = processor(raw_data)
-        self.six_senses.store_perception(perception)
-        self._perception_buffer.append(perception)
+        for st, processor in processor_map.items():
+            if st.value == sense_value:
+                perception = processor(raw_data)
+                self.six_senses.store_perception(perception)
+                self._perception_buffer.append(perception)
+                if len(self._perception_buffer) > 50:
+                    self._perception_buffer = self._perception_buffer[-50:]
+                return perception
+        
+        raise ValueError(f"Unknown sense type: {sense_type}")
         
         if len(self._perception_buffer) > 50:
             self._perception_buffer = self._perception_buffer[-50:]

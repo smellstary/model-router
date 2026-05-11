@@ -11,6 +11,9 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import asyncio
 from datetime import datetime
+from enum import Enum
+from typing import Any, get_origin, get_args
+from dataclasses import is_dataclass, fields
 
 from core.agent import OrientalWisdomAgent
 from image.system import ImageAndQiSystem
@@ -18,6 +21,52 @@ from commercial import RiskLevel
 
 app = Flask(__name__)
 CORS(app)
+
+
+def serialize_value(value: Any) -> Any:
+    """序列化不可 JSON 序列化的值"""
+    if value is None:
+        return None
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, dict):
+        return serialize_dict(value)
+    if is_dataclass(value) and not isinstance(value, type):
+        return serialize_dataclass(value)
+    if hasattr(value, '__dict__'):
+        return serialize_dict(value.__dict__)
+    if isinstance(value, (list, tuple)):
+        return [serialize_value(item) for item in value]
+    if isinstance(value, str):
+        try:
+            import json
+            parsed = json.loads(value)
+            return serialize_value(parsed)
+        except (json.JSONDecodeError, TypeError):
+            return value
+    return str(value)
+
+
+def serialize_dataclass(obj: Any) -> dict:
+    """序列化 dataclass 对象"""
+    result = {}
+    for field_info in fields(obj):
+        field_value = getattr(obj, field_info.name)
+        result[field_info.name] = serialize_value(field_value)
+    return result
+
+
+def serialize_dict(data: dict) -> dict:
+    """递归序列化字典中的不可序列化值"""
+    result = {}
+    for key, value in data.items():
+        key_str = key.value if isinstance(key, Enum) else str(key)
+        result[key_str] = serialize_value(value)
+    return result
 
 # 全局实例
 agent = OrientalWisdomAgent()
@@ -37,10 +86,10 @@ def health():
 
 
 @app.route('/api/status', methods=['GET'])
-async def get_status():
+def get_status():
     """获取智能体状态"""
-    state = await agent.get_full_state()
-    return jsonify(state)
+    state = asyncio.run(agent.get_full_state())
+    return jsonify(serialize_dict(state))
 
 
 # ==================== 商道智能接口 ====================
@@ -50,7 +99,7 @@ def analyze_opportunity():
     """商机洞察分析"""
     data = request.json or {}
     result = agent.analyze_business_opportunity(data)
-    return jsonify(result)
+    return jsonify(serialize_dict(result))
 
 
 @app.route('/api/commercial/model', methods=['POST'])
@@ -203,7 +252,7 @@ def import_avatar():
 # ==================== OpenClaw Webhook ====================
 
 @app.route('/webhook/openclaw', methods=['POST'])
-async def openclaw_webhook():
+def openclaw_webhook():
     """OpenClaw Webhook 接口"""
     data = request.json or {}
     
@@ -214,12 +263,15 @@ async def openclaw_webhook():
     if not message:
         return jsonify({'error': 'No message'}), 400
     
-    # 处理消息
-    response = await agent.process(message)
+    try:
+        response = asyncio.run(agent.process(message))
+        reply = response.response_text if response else "处理完成"
+    except Exception as e:
+        reply = f"处理消息时出错: {str(e)}"
     
     return jsonify({
         'success': True,
-        'reply': response.response_text,
+        'reply': reply,
         'user_id': user_id,
         'chat_id': chat_id,
         'timestamp': datetime.now().isoformat()
@@ -245,7 +297,7 @@ def hermes_commercial():
     else:
         result = {'error': 'Unknown action'}
     
-    return jsonify(result)
+    return jsonify(serialize_dict(result))
 
 
 @app.route('/hermes/avatar', methods=['POST'])
