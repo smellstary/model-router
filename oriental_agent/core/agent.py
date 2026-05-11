@@ -21,6 +21,8 @@ from perception.system import PerceptionSystem
 from body.system import BodyMappingSystem
 from image.system import ImageAndQiSystem
 
+from commercial.agent import CommercialAgent, ShangDaoAdvisor
+
 
 @dataclass
 class AgentState:
@@ -43,7 +45,7 @@ class AgentResponse:
 
 
 class OrientalWisdomAgent:
-    """东方智慧智能体主类"""
+    """东方智慧智能体主类 - 集成商道智能系统"""
     
     def __init__(self, config_path: Optional[str] = None):
         self.config = get_config(config_path)
@@ -54,6 +56,10 @@ class OrientalWisdomAgent:
         self.perception_system = PerceptionSystem(self.config)
         self.body_system = BodyMappingSystem(self.config)
         self.image_system = ImageAndQiSystem(self.config)
+        
+        # 商道智能系统集成
+        self.commercial_agent = CommercialAgent()
+        self.shangdao_advisor = ShangDaoAdvisor()
         
         self.status = "initialized"
         self.start_time: Optional[datetime] = None
@@ -231,8 +237,121 @@ class OrientalWisdomAgent:
             'execution': await self.execution_system.get_system_state(),
             'perception': self.perception_system.get_system_state(),
             'body': await self.body_system.get_system_state(),
-            'image': await self.image_system.get_system_state()
+            'image': await self.image_system.get_system_state(),
+            'commercial': self.commercial_agent.get_state()
         }
+
+    # ==================== 商道智能系统接口 ====================
+
+    def analyze_business_opportunity(self, market_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        商机洞察分析
+
+        Args:
+            market_data: 市场数据
+
+        Returns:
+            商机分析结果
+        """
+        return self.commercial_agent.analyze_opportunity(market_data)
+
+    def analyze_business_model(self, model_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        商业模式分析
+
+        Args:
+            model_data: 商业模式数据
+
+        Returns:
+            模式分析结果
+        """
+        return self.commercial_agent.analyze_business_model(model_data)
+
+    def analyze_competition(
+        self,
+        competitor_data: Dict[str, Any],
+        market_data: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        竞争分析
+
+        Args:
+            competitor_data: 竞争对手数据
+            market_data: 市场数据
+
+        Returns:
+            竞争分析结果
+        """
+        return self.commercial_agent.analyze_competition(competitor_data, market_data)
+
+    def analyze_investment(self, project_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        投资分析
+
+        Args:
+            project_data: 项目数据
+
+        Returns:
+            投资分析结果
+        """
+        return self.commercial_agent.analyze_investment(project_data)
+
+    def formulate_strategy(self, business_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        战略规划
+
+        Args:
+            business_data: 业务数据
+
+        Returns:
+            战略规划结果
+        """
+        return self.commercial_agent.formulate_strategy(business_data)
+
+    def generate_commercial_report(self, context: Dict[str, Any]) -> Any:
+        """
+        生成综合商业报告
+
+        Args:
+            context: 分析上下文数据
+
+        Returns:
+            商业分析报告
+        """
+        return self.commercial_agent.generate_comprehensive_report(context)
+
+    def get_shangdao_wisdom(self) -> List[Dict[str, Any]]:
+        """获取东方智慧商业洞察"""
+        return self.commercial_agent.get_wisdom_insights()
+
+    def get_shangdao_advice(self, situation: str) -> Dict[str, str]:
+        """
+        获取商道建议
+
+        Args:
+            situation: 情境类型 (startup/growth/mature/turnaround/crisis)
+
+        Returns:
+            商道建议
+        """
+        return self.shangdao_advisor.get_advice(situation)
+
+    def evaluate_business_decision(
+        self,
+        decision: str,
+        context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        评估商业决策
+
+        Args:
+            decision: 决策描述
+            context: 决策上下文
+
+        Returns:
+            决策评估结果
+        """
+        return self.shangdao_advisor.evaluate_decision(decision, context)
 
 
 async def create_agent(config_path: Optional[str] = None) -> OrientalWisdomAgent:
