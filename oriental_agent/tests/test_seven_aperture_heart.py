@@ -47,7 +47,7 @@ class TestSevenApertureHeartSystem:
         assert heart.state == HeartState.ACTIVE
         
         for aperture in heart.apertures.values():
-            assert aperture.info.state >= ApertureState.NORMAL
+            assert aperture.info.state.value >= ApertureState.NORMAL.value
     
     def test_stop(self):
         heart = SevenApertureHeartSystem()

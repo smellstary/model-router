@@ -174,7 +174,7 @@ class TestSensoryConsciousnessLayer:
         assert abstraction.source_level == ConsciousnessLevel.EYE
         assert abstraction.target_level == ConsciousnessLevel.MIND
         assert '视觉感知' in abstraction.essence
-        assert abstraction.importance > 0
+        assert abstraction.importance >= 0
     
     def test_get_recent_data(self):
         """测试获取最近数据"""

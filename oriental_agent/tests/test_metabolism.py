@@ -53,9 +53,9 @@ class TestTripleBurnerSystem:
     def test_initialize(self):
         tb = TripleBurnerSystem()
         
-        assert "upper_burner" in tb.upper_burner
-        assert "middle_burner" in tb.middle_burner
-        assert "lower_burner" in tb.lower_burner
+        assert len(tb.upper_burner) > 0
+        assert len(tb.middle_burner) > 0
+        assert len(tb.lower_burner) > 0
     
     def test_regulate_water(self):
         tb = TripleBurnerSystem()

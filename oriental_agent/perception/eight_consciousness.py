@@ -1203,17 +1203,17 @@ class AlayaConsciousness:
             return []
         
         start_seed = self._seeds[seed_id]
-        related = []
+        related_ids = set()
         
         for trace_id in start_seed.source_trace:
             if trace_id in self._seeds:
-                related.append(self._seeds[trace_id])
+                related_ids.add(trace_id)
         
         for other_seed in self._seeds.values():
             if seed_id in other_seed.source_trace:
-                related.append(other_seed)
+                related_ids.add(other_seed.seed_id)
         
-        return list(set(related))
+        return [self._seeds[sid] for sid in related_ids]
     
     def get_seed(self, seed_id: str) -> Optional[AlayaSeed]:
         """获取指定种子"""

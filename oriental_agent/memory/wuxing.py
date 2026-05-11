@@ -4,7 +4,7 @@ Wu Xing (Five Elements) relationships and operations
 """
 
 from typing import Dict, List, Set, Tuple
-from core.types import WuxingType, WuxingRelation, WuxingAttribute
+from core.types import WuxingType, WuxingRelation
 
 
 class WuxingSystem:

@@ -11,7 +11,8 @@ from body.instinct_system import (
     InstinctEngine,
     DriveIntegration,
     BehaviorMapper,
-    BehaviorMode
+    BehaviorMode,
+    InstinctSignal
 )
 
 
@@ -192,6 +193,7 @@ class TestBehaviorMapper:
                 signal_type="threat",
                 intensity=0.8,
                 source="test",
+                timestamp=datetime.now(),
                 associated_drives=["self_preservation"]
             )
         ]
