@@ -731,8 +731,8 @@ class GanzhiTimeEngine:
     
     def _calc_time_energy(self, hour: int, tiangan: str) -> float:
         """计算时辰能量"""
-        base_energy = (hour % 12) / 12.0
-        tiangan_modifier = self.TIANGAN.index(tiangan) / 10.0
+        base_energy = ((hour % 12) + 1) / 12.0
+        tiangan_modifier = (self.TIANGAN.index(tiangan) + 1) / 10.0
         return (base_energy + tiangan_modifier) / 2
 
 
