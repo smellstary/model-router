@@ -1,0 +1,94 @@
+<view class="container">
+  <view class="header">
+    <view class="date-info">
+      <text class="date">{{currentDate}}</text>
+      <text class="lunar">{{lunarDate}}</text>
+    </view>
+    <view class="location" bindtap="onLocationTap">
+      <text class="icon">📍</text>
+      <text>{{location}}</text>
+    </view>
+  </view>
+
+  <view class="solar-term-card">
+    <view class="solar-term-main">
+      <text class="solar-icon">{{currentSolarTerm.icon}}</text>
+      <view class="solar-info">
+        <text class="solar-name">{{currentSolarTerm.name}}</text>
+        <text class="solar-desc">{{currentSolarTerm.description}}</text>
+      </view>
+    </view>
+    <view class="next-term">
+      <text>下一个节气：{{nextSolarTerm.name}}</text>
+      <text class="countdown">还有{{daysToNextTerm}}天</text>
+    </view>
+  </view>
+
+  <view class="weather-section">
+    <view class="weather-current">
+      <view class="weather-main">
+        <text class="weather-icon">{{weatherIcon}}</text>
+        <text class="temperature">{{temperature}}</text>
+        <text class="degree">°C</text>
+      </view>
+      <view class="weather-detail">
+        <text class="weather-text">{{weather}}</text>
+        <view class="weather-extra">
+          <text>湿度 {{humidity}}%</text>
+          <text>风力 {{windSpeed}}级</text>
+        </view>
+      </view>
+    </view>
+    <view class="weather-tips">
+      <text class="tip-tag" wx:for="{{weatherTips}}" wx:key="index">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="reminder-section">
+    <view class="section-header">
+      <text class="section-title">今日农事</text>
+      <view class="more-btn" bindtap="goToReminder">
+        <text>查看全部</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+    <view class="reminder-list">
+      <view class="reminder-item" wx:for="{{todayReminders}}" wx:key="id">
+        <view class="reminder-content">
+          <view class="reminder-header">
+            <text class="crop-tag">{{item.cropName}}</text>
+            <text class="stage-tag">{{item.stage}}</text>
+          </view>
+          <text class="reminder-text">{{item.content}}</text>
+          <text class="reminder-plot">{{item.plotName}}</text>
+        </view>
+        <view class="reminder-status {{item.status}}">
+          <text wx:if="{{item.status === 'pending'}}">待完成</text>
+          <text wx:else>已完成</text>
+        </view>
+      </view>
+      <view class="empty-reminder" wx:if="{{todayReminders.length === 0}}">
+        <text>暂无今日农事，添加地块和作物开始使用</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="quick-actions">
+    <view class="action-item" bindtap="goToAddPlot">
+      <text class="action-icon">🌱</text>
+      <text>添加地块</text>
+    </view>
+    <view class="action-item" bindtap="goToCrops">
+      <text class="action-icon">🌾</text>
+      <text>作物库</text>
+    </view>
+    <view class="action-item" bindtap="goToEncyclopedia">
+      <text class="action-icon">📚</text>
+      <text>农事百科</text>
+    </view>
+    <view class="action-item" bindtap="goToTimeline">
+      <text class="action-icon">📅</text>
+      <text>节气历</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,61 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/timeline/timeline",
+    "pages/crops/crops",
+    "pages/crop-detail/crop-detail",
+    "pages/my-field/my-field",
+    "pages/reminder/reminder",
+    "pages/encyclopedia/encyclopedia",
+    "pages/profile/profile",
+    "pages/region/region",
+    "pages/onboarding/onboarding"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#2d5a27",
+    "navigationBarTitleText": "农事通",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#2d5a27",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "assets/tab-home.png",
+        "selectedIconPath": "assets/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/timeline/timeline",
+        "text": "节气",
+        "iconPath": "assets/tab-calendar.png",
+        "selectedIconPath": "assets/tab-calendar-active.png"
+      },
+      {
+        "pagePath": "pages/crops/crops",
+        "text": "作物",
+        "iconPath": "assets/tab-crop.png",
+        "selectedIconPath": "assets/tab-crop-active.png"
+      },
+      {
+        "pagePath": "pages/my-field/my-field",
+        "text": "我的田",
+        "iconPath": "assets/tab-field.png",
+        "selectedIconPath": "assets/tab-field-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/tab-profile.png",
+        "selectedIconPath": "assets/tab-profile-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

@@ -1,0 +1,68 @@
+<view class="container">
+  <view class="crop-header">
+    <view class="crop-icon">{{crop.icon}}</view>
+    <view class="crop-title">
+      <text class="crop-name">{{crop.name}}</text>
+      <text class="crop-category">{{crop.category}}</text>
+    </view>
+  </view>
+
+  <view class="info-cards">
+    <view class="info-card">
+      <text class="info-icon">📅</text>
+      <text class="info-label">生长周期</text>
+      <text class="info-value">{{crop.growthPeriod}}</text>
+    </view>
+    <view class="info-card">
+      <text class="info-icon">🌡️</text>
+      <text class="info-label">适宜温度</text>
+      <text class="info-value">{{crop.suitableTemperature}}</text>
+    </view>
+    <view class="info-card">
+      <text class="info-icon">🌍</text>
+      <text class="info-label">适宜区域</text>
+      <text class="info-value">{{crop.suitableRegion}}</text>
+    </view>
+    <view class="info-card">
+      <text class="info-icon">🏔️</text>
+      <text class="info-label">适宜土壤</text>
+      <text class="info-value">{{crop.suitableSoil}}</text>
+    </view>
+  </view>
+
+  <view class="stages-section">
+    <view class="section-title">
+      <text>节气农事节点</text>
+    </view>
+    <view class="timeline">
+      <view class="timeline-item" wx:for="{{crop.stages}}" wx:key="name">
+        <view class="timeline-marker">
+          <view class="marker-dot {{item.isCurrent ? 'current' : ''}}"></view>
+          <view class="marker-line" wx:if="{{index < crop.stages.length - 1}}"></view>
+        </view>
+        <view class="timeline-content">
+          <view class="stage-header">
+            <text class="stage-name">{{item.name}}</text>
+            <text class="stage-solar">{{item.solarTerm}}</text>
+          </view>
+          <text class="stage-desc">{{item.description}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="tips-section">
+    <view class="section-title">
+      <text>种植要点</text>
+    </view>
+    <view class="tips-list">
+      <text class="tip-item" wx:for="{{crop.tips}}" wx:key="index">{{index + 1}}. {{item}}</text>
+    </view>
+  </view>
+
+  <view class="action-bar">
+    <button class="btn-add" bindtap="addToMyField">
+      <text>添加到我的田</text>
+    </button>
+  </view>
+</view>

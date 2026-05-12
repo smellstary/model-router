@@ -1,0 +1,94 @@
+<view class="container">
+  <view class="header-section">
+    <view class="current-solar">
+      <text class="solar-icon">{{currentSolarTerm.icon}}</text>
+      <view class="solar-text">
+        <text class="solar-name">{{currentSolarTerm.name}}</text>
+        <text class="solar-desc">{{currentSolarTerm.description}}</text>
+      </view>
+    </view>
+    <view class="generate-btn" bindtap="generateReminders">
+      <text>生成提醒</text>
+    </view>
+  </view>
+
+  <view class="tabs-section">
+    <view class="tab {{activeTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
+      <text>全部</text>
+      <text class="tab-count">{{reminders.length}}</text>
+    </view>
+    <view class="tab {{activeTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">
+      <text>待完成</text>
+      <text class="tab-count">{{pendingCount}}</text>
+    </view>
+    <view class="tab {{activeTab === 'completed' ? 'active' : ''}}" bindtap="switchTab" data-tab="completed">
+      <text>已完成</text>
+      <text class="tab-count">{{completedCount}}</text>
+    </view>
+  </view>
+
+  <view class="reminders-list">
+    <view class="reminder-card {{item.status}}" wx:for="{{filteredReminders}}" wx:key="id">
+      <view class="reminder-check" bindtap="toggleStatus" data-id="{{item.id}}">
+        <view class="check-icon {{item.status === 'completed' ? 'checked' : ''}}">
+          <text wx:if="{{item.status === 'completed'}}">✓</text>
+        </view>
+      </view>
+      <view class="reminder-main">
+        <view class="reminder-header">
+          <view class="reminder-tags">
+            <text class="tag-crop" wx:if="{{item.cropName}}">{{item.cropName}}</text>
+            <text class="tag-stage">{{item.stage}}</text>
+            <text class="tag-type {{item.type}}">{{item.type === 'auto' ? '自动' : '手动'}}</text>
+          </view>
+          <text class="reminder-date">{{item.date}}</text>
+        </view>
+        <text class="reminder-content">{{item.content}}</text>
+        <text class="reminder-plot">{{item.plotName}}</text>
+      </view>
+      <view class="reminder-actions">
+        <text class="action-btn delete" bindtap="deleteReminder" data-id="{{item.id}}">删除</text>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{filteredReminders.length === 0}}">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">{{activeTab === 'all' ? '暂无提醒' : activeTab === 'pending' ? '没有待完成的提醒' : '没有已完成的提醒'}}</text>
+      <view class="empty-action" wx:if="{{activeTab === 'all'}}">
+        <text>点击上方按钮生成智能提醒</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="add-fab" bindtap="showAddReminder">
+    <text>+</text>
+  </view>
+</view>
+
+<view class="modal" wx:if="{{showModal}}" catchtap="closeModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">添加提醒</text>
+      <text class="modal-close" bindtap="closeModal">✕</text>
+    </view>
+    <view class="modal-form">
+      <view class="form-item">
+        <text class="form-label">提醒内容</text>
+        <textarea class="form-textarea" placeholder="输入提醒内容..." bindinput="onContentInput" value="{{form.content}}" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">日期</text>
+        <picker mode="date" bindchange="onDateChange">
+          <text class="picker-value">{{form.date}}</text>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">时间</text>
+        <picker mode="time" bindchange="onTimeChange">
+          <text class="picker-value">{{form.time}}</text>
+        </picker>
+      </view>
+    </view>
+    <button class="btn-submit" bindtap="submitReminder">保存</button>
+  </view>
+</view>

@@ -1,0 +1,125 @@
+<view class="container">
+  <view class="plots-section">
+    <view class="section-header">
+      <text class="section-title">我的地块</text>
+      <view class="add-btn" bindtap="showAddPlot">
+        <text>添加地块</text>
+      </view>
+    </view>
+
+    <view class="plots-list">
+      <view class="plot-card" wx:for="{{plots}}" wx:key="id" bindtap="goToPlotDetail" data-id="{{item.id}}">
+        <view class="plot-header">
+          <view class="plot-icon">🌾</view>
+          <view class="plot-info">
+            <text class="plot-name">{{item.name}}</text>
+            <text class="plot-area">{{item.area}} {{item.unit}}</text>
+          </view>
+          <view class="plot-status {{item.status}}">
+            <text>{{item.status === 'active' ? '耕作中' : '空闲'}}</text>
+          </view>
+        </view>
+        <view class="plot-tags">
+          <text class="tag">{{item.soilType}}</text>
+          <text class="tag">{{item.irrigationType}}</text>
+        </view>
+        <view class="plot-crops" wx:if="{{item.crops && item.crops.length > 0}}">
+          <text class="crop-tag" wx:for="{{item.crops}}" wx:key="cropId" wx:for-item="c">{{c.cropName}}</text>
+        </view>
+        <view class="plot-empty" wx:else>
+          <text>暂无作物</text>
+        </view>
+      </view>
+
+      <view class="empty-plots" wx:if="{{plots.length === 0}}">
+        <text class="empty-icon">🌱</text>
+        <text class="empty-text">还没有地块</text>
+        <text class="empty-hint">点击上方添加地块开始使用</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="diaries-section">
+    <view class="section-header">
+      <text class="section-title">农事日记</text>
+      <view class="add-btn" bindtap="showAddDiary">
+        <text>写日记</text>
+      </view>
+    </view>
+
+    <view class="diaries-list">
+      <view class="diary-card" wx:for="{{diaries}}" wx:key="id">
+        <view class="diary-header">
+          <text class="diary-date">{{item.date}}</text>
+          <text class="diary-plot">{{item.plotName}}</text>
+        </view>
+        <text class="diary-content">{{item.content}}</text>
+        <view class="diary-weather" wx:if="{{item.weather}}">
+          <text>{{item.weather}}</text>
+        </view>
+      </view>
+
+      <view class="empty-diaries" wx:if="{{diaries.length === 0}}">
+        <text class="empty-text">还没有日记</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="modal" wx:if="{{showModal}}" catchtap="closeModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">{{modalType === 'plot' ? '添加地块' : '写日记'}}</text>
+        <text class="modal-close" bindtap="closeModal">✕</text>
+      </view>
+
+      <view class="modal-form" wx:if="{{modalType === 'plot'}}">
+        <view class="form-item">
+          <text class="form-label">地块名称</text>
+          <input class="form-input" placeholder="请输入地块名称" bindinput="onPlotNameInput" value="{{plotForm.name}}" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">面积</text>
+          <view class="form-row">
+            <input class="form-input" type="digit" placeholder="0" bindinput="onPlotAreaInput" value="{{plotForm.area}}" />
+            <picker bindchange="onUnitChange" value="{{areaUnitIndex}}" range="{{areaUnits}}">
+              <text class="picker-value">{{plotForm.unit}}</text>
+            </picker>
+          </view>
+        </view>
+        <view class="form-item">
+          <text class="form-label">土壤类型</text>
+          <picker bindchange="onSoilTypeChange" value="{{soilTypeIndex}}" range="{{soilTypes}}">
+            <text class="picker-value">{{plotForm.soilType}}</text>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="form-label">灌溉方式</text>
+          <picker bindchange="onIrrigationChange" value="{{irrigationIndex}}" range="{{irrigationTypes}}">
+            <text class="picker-value">{{plotForm.irrigationType}}</text>
+          </picker>
+        </view>
+      </view>
+
+      <view class="modal-form" wx:if="{{modalType === 'diary'}}">
+        <view class="form-item">
+          <text class="form-label">日期</text>
+          <picker mode="date" bindchange="onDiaryDateChange">
+            <text class="picker-value">{{diaryForm.date}}</text>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="form-label">选择地块</text>
+          <picker bindchange="onDiaryPlotChange" value="{{diaryPlotIndex}}" range="{{plots}}" range-key="name">
+            <text class="picker-value">{{diaryForm.plotName || '请选择'}}</text>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="form-label">内容</text>
+          <textarea class="form-textarea" placeholder="记录今天的农事活动..." bindinput="onDiaryContentInput" value="{{diaryForm.content}}" />
+        </view>
+      </view>
+
+      <button class="btn-submit" bindtap="submitForm">{{modalType === 'plot' ? '添加' : '保存'}}</button>
+    </view>
+  </view>
+</view>
