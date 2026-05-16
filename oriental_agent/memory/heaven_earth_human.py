@@ -268,11 +268,24 @@ class ThreeLayerMemoryArchitecture:
             self.cross_layer_associations[memory.memory_id] = associations
     
     def _has_semantic_relation(self, content1: any, content2: any) -> bool:
-        """判断语义关联性"""
+        """判断语义关联性 — 支持中文分词（jieba）"""
         if isinstance(content1, str) and isinstance(content2, str):
-            common_words = set(content1.split()) & set(content2.split())
-            return len(common_words) > 2
+            words1 = self._tokenize(content1)
+            words2 = self._tokenize(content2)
+            common_words = words1 & words2
+            # 过滤单字停用词
+            meaningful = {w for w in common_words if len(w) > 1}
+            return len(meaningful) >= 2
         return content1 == content2
+
+    @staticmethod
+    def _tokenize(text: str) -> set:
+        """中文分词，优先 jieba，fallback bi-gram"""
+        try:
+            import jieba
+            return set(jieba.lcut(text))
+        except ImportError:
+            return {text[i:i+2] for i in range(len(text) - 1)} | set(text)
     
     def get_heaven_insights(self, context: str) -> List[str]:
         """从天道层获取洞见"""

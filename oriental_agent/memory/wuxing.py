@@ -3,8 +3,8 @@ Wu Xing (Five Elements) relationships and operations
 五行生克关系与操作
 """
 
-from typing import Dict, List, Set, Tuple
-from core.types import WuxingType, WuxingRelation, WuxingAttribute
+from typing import Any, Dict, List, Set, Tuple
+from core.types import WuxingType, WuxingRelation
 
 
 class WuxingSystem:
@@ -133,26 +133,46 @@ class WuxingSystem:
         return suggestions
     
     def get_wuxing_from_content(self, content: Any) -> WuxingType:
-        """Infer Wu Xing type from content characteristics"""
-        content_type = type(content).__name__.lower()
-        
-        wuxing_mapping = {
-            'growth': WuxingType.WOOD,
-            'create': WuxingType.WOOD,
-            'energy': WuxingType.FIRE,
-            'passion': WuxingType.FIRE,
-            'stability': WuxingType.EARTH,
-            'ground': WuxingType.EARTH,
-            'decide': WuxingType.METAL,
-            'contract': WuxingType.METAL,
-            'flow': WuxingType.WATER,
-            'wisdom': WuxingType.WATER
+        """基于内容关键词推断五行属性（支持中英文）"""
+        content_str = str(content).lower()
+
+        keyword_map = {
+            WuxingType.WOOD: ['成长', '创造', '发展', '生长', '创新', '萌芽',
+                              'growth', 'create', 'develop', 'innovation', 'build'],
+            WuxingType.FIRE: ['热情', '能量', '动力', '激烈', '爆发', '火热',
+                              'energy', 'passion', 'fire', 'intense', 'power', 'burn'],
+            WuxingType.EARTH: ['稳定', '基础', '承载', '平衡', '中心', '根基',
+                               'stability', 'ground', 'foundation', 'balance', 'center'],
+            WuxingType.METAL: ['决策', '收敛', '规则', '秩序', '精确', '纪律',
+                               'decide', 'order', 'rule', 'precise', 'contract', 'discipline'],
+            WuxingType.WATER: ['流动', '智慧', '变化', '灵活', '深思', '深邃',
+                               'flow', 'wisdom', 'change', 'flexible', 'deep', 'adapt'],
         }
-        
-        for key, wuxing in wuxing_mapping.items():
-            if key in content_type:
-                return wuxing
-        
+
+        scores = {wx: 0 for wx in WuxingType}
+        for wuxing, keywords in keyword_map.items():
+            for kw in keywords:
+                if kw.lower() in content_str:
+                    scores[wuxing] += 1
+
+        if max(scores.values()) > 0:
+            return max(scores.items(), key=lambda x: x[1])[0]
+
+        # fallback：根据类型名推断
+        return self._wuxing_by_type(content)
+
+    @staticmethod
+    def _wuxing_by_type(content: Any) -> WuxingType:
+        """根据 Python 类型做粗略五行分类"""
+        t = type(content).__name__.lower()
+        if t in ('str', 'text'):
+            return WuxingType.WATER  # 水主智
+        if t in ('int', 'float', 'bool'):
+            return WuxingType.METAL  # 金主决断
+        if t in ('list', 'tuple', 'set'):
+            return WuxingType.WOOD   # 木主生长
+        if t in ('dict', 'mapping'):
+            return WuxingType.EARTH  # 土主承载
         return WuxingType.EARTH
     
     def get_compounded_wuxing(self, elements: List[WuxingType]) -> WuxingType:
