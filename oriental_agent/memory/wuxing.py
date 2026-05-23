@@ -3,7 +3,7 @@ Wu Xing (Five Elements) relationships and operations
 五行生克关系与操作
 """
 
-from typing import Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 from core.types import WuxingType, WuxingRelation, WuxingAttribute
 
 
