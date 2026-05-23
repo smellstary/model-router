@@ -1,0 +1,75 @@
+<view class="container">
+  <view class="profile-header">
+    <view class="avatar-section">
+      <view class="avatar">
+        <text>{{avatarText}}</text>
+      </view>
+      <view class="user-info">
+        <text class="username">{{username}}</text>
+        <text class="region">{{region}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="stats-section">
+    <view class="stat-item">
+      <text class="stat-value">{{stats.plots}}</text>
+      <text class="stat-label">地块</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{stats.crops}}</text>
+      <text class="stat-label">作物</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{stats.reminders}}</text>
+      <text class="stat-label">提醒</text>
+    </view>
+  </view>
+
+  <view class="menu-section">
+    <view class="menu-item" bindtap="goToRegion">
+      <view class="menu-left">
+        <text class="menu-icon">📍</text>
+        <text class="menu-text">地区设置</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goToOnboarding">
+      <view class="menu-left">
+        <text class="menu-icon">🌱</text>
+        <text class="menu-text">新建地块引导</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goToReminder">
+      <view class="menu-left">
+        <text class="menu-icon">📋</text>
+        <text class="menu-text">智能提醒</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="menu-section">
+    <view class="menu-item" bindtap="clearCache">
+      <view class="menu-left">
+        <text class="menu-icon">🗑️</text>
+        <text class="menu-text">清理缓存</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="showAbout">
+      <view class="menu-left">
+        <text class="menu-icon">ℹ️</text>
+        <text class="menu-text">关于农事通</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="version-info">
+    <text>农事通 v1.0.0</text>
+  </view>
+</view>

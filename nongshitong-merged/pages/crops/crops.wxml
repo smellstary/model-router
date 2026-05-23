@@ -1,0 +1,43 @@
+<view class="container">
+  <view class="search-bar">
+    <view class="search-input">
+      <text class="search-icon">🔍</text>
+      <input placeholder="搜索作物名称" bindinput="onSearch" value="{{searchKey}}" />
+    </view>
+  </view>
+
+  <view class="category-tabs">
+    <text 
+      class="category-tab {{selectedCategory === item ? 'active' : ''}}" 
+      wx:for="{{categories}}"
+      wx:key="item"
+      bindtap="selectCategory"
+      data-category="{{item}}"
+    >{{item}}</text>
+  </view>
+
+  <view class="crops-grid">
+    <view 
+      class="crop-card" 
+      wx:for="{{filteredCrops}}" 
+      wx:key="id"
+      bindtap="goToDetail"
+      data-id="{{item.id}}"
+    >
+      <view class="crop-icon">{{item.icon}}</view>
+      <view class="crop-info">
+        <text class="crop-name">{{item.name}}</text>
+        <text class="crop-category">{{item.category}}</text>
+        <view class="crop-tags">
+          <text class="tag">{{item.growthPeriod}}</text>
+        </view>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:if="{{filteredCrops.length === 0}}">
+    <text class="empty-icon">🔍</text>
+    <text class="empty-text">未找到相关作物</text>
+  </view>
+</view>

@@ -1,0 +1,58 @@
+<view class="container">
+  <view class="search-bar">
+    <view class="search-input">
+      <text class="search-icon">🔍</text>
+      <input placeholder="搜索农事知识" bindinput="onSearch" value="{{searchKey}}" />
+    </view>
+  </view>
+
+  <view class="category-chips">
+    <text 
+      class="chip {{selectedCategory === item ? 'active' : ''}}" 
+      wx:for="{{categories}}"
+      wx:key="item"
+      bindtap="selectCategory"
+      data-category="{{item}}"
+    >{{item}}</text>
+  </view>
+
+  <view class="articles-list">
+    <view class="article-card" wx:for="{{filteredArticles}}" wx:key="id" bindtap="goToArticle" data-id="{{item.id}}">
+      <view class="article-cover">
+        <text class="article-icon">{{item.icon}}</text>
+      </view>
+      <view class="article-content">
+        <text class="article-title">{{item.title}}</text>
+        <text class="article-summary">{{item.summary}}</text>
+        <view class="article-meta">
+          <text class="article-category">{{item.category}}</text>
+          <text class="article-date">{{item.date}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{filteredArticles.length === 0}}">
+      <text class="empty-icon">📚</text>
+      <text class="empty-text">未找到相关文章</text>
+    </view>
+  </view>
+
+  <view class="article-modal" wx:if="{{showArticle}}" catchtap="closeArticle">
+    <view class="article-detail" catchtap="stopPropagation">
+      <view class="detail-header">
+        <text class="detail-icon">{{currentArticle.icon}}</text>
+        <view class="detail-title">
+          <text class="detail-title-text">{{currentArticle.title}}</text>
+          <text class="detail-meta">{{currentArticle.category}} · {{currentArticle.date}}</text>
+        </view>
+        <text class="close-btn" bindtap="closeArticle">✕</text>
+      </view>
+      <scroll-view class="detail-body" scroll-y="true">
+        <text class="detail-content">{{currentArticle.content}}</text>
+        <view class="detail-tags" wx:if="{{currentArticle.tags}}">
+          <text class="tag" wx:for="{{currentArticle.tags}}" wx:key="index">{{item}}</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

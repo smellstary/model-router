@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="header">
+    <text class="header-title">选择您的所在地区</text>
+    <text class="header-desc">地区信息将用于天气和农事建议</text>
+  </view>
+
+  <view class="search-bar">
+    <view class="search-input">
+      <text class="search-icon">🔍</text>
+      <input placeholder="搜索省份或城市" bindinput="onSearch" value="{{searchKey}}" />
+    </view>
+  </view>
+
+  <view class="regions-list">
+    <view class="region-item" wx:for="{{filteredRegions}}" wx:key="item" bindtap="selectRegion" data-region="{{item}}">
+      <text class="region-name">{{item}}</text>
+      <view class="region-check" wx:if="{{selectedRegion === item}}">
+        <text>✓</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="current-location" bindtap="getLocation">
+    <text class="location-icon">📍</text>
+    <text class="location-text">使用当前位置</text>
+  </view>
+</view>

@@ -1,0 +1,106 @@
+<view class="container">
+  <view class="steps-indicator">
+    <view class="step-dot {{currentStep >= 1 ? 'active' : ''}} {{currentStep > 1 ? 'completed' : ''}}">
+      <text wx:if="{{currentStep <= 1}}">1</text>
+      <text wx:else>✓</text>
+    </view>
+    <view class="step-line {{currentStep > 1 ? 'active' : ''}}"></view>
+    <view class="step-dot {{currentStep >= 2 ? 'active' : ''}} {{currentStep > 2 ? 'completed' : ''}}">
+      <text wx:if="{{currentStep <= 2}}">2</text>
+      <text wx:else>✓</text>
+    </view>
+    <view class="step-line {{currentStep > 2 ? 'active' : ''}}"></view>
+    <view class="step-dot {{currentStep >= 3 ? 'active' : ''}}">
+      <text>3</text>
+    </view>
+  </view>
+
+  <view class="step-title">
+    <text>{{stepTitle}}</text>
+  </view>
+
+  <view class="step-content">
+    <view wx:if="{{currentStep === 1}}" class="step-1">
+      <view class="form-card">
+        <view class="form-item">
+          <text class="form-label">地块名称</text>
+          <input class="form-input" placeholder="例如：北边自留地" bindinput="onNameInput" value="{{plotForm.name}}" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">地块面积</text>
+          <view class="form-row">
+            <input class="form-input" type="digit" placeholder="0" bindinput="onAreaInput" value="{{plotForm.area}}" />
+            <picker bindchange="onUnitChange" value="{{unitIndex}}" range="{{areaUnits}}">
+              <text class="picker-btn">{{plotForm.unit}}</text>
+            </picker>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{currentStep === 2}}" class="step-2">
+      <view class="form-card">
+        <view class="form-item">
+          <text class="form-label">土壤类型</text>
+          <picker bindchange="onSoilTypeChange" value="{{soilTypeIndex}}" range="{{soilTypes}}">
+            <text class="picker-btn">{{plotForm.soilType}}</text>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="form-label">灌溉方式</text>
+          <picker bindchange="onIrrigationChange" value="{{irrigationIndex}}" range="{{irrigationTypes}}">
+            <text class="picker-btn">{{plotForm.irrigationType}}</text>
+          </picker>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{currentStep === 3}}" class="step-3">
+      <view class="crop-selection">
+        <text class="crop-title">选择种植的作物（可多选）</text>
+        <view class="crop-grid">
+          <view 
+            class="crop-item {{selectedCrops.includes(item.id) ? 'selected' : ''}}" 
+            wx:for="{{allCrops}}" 
+            wx:key="id"
+            bindtap="toggleCrop"
+            data-id="{{item.id}}"
+          >
+            <text class="crop-icon">{{item.icon}}</text>
+            <text class="crop-name">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="summary-card" wx:if="{{plotForm.name}}">
+        <text class="summary-title">地块信息确认</text>
+        <view class="summary-row">
+          <text class="summary-label">名称</text>
+          <text class="summary-value">{{plotForm.name}}</text>
+        </view>
+        <view class="summary-row">
+          <text class="summary-label">面积</text>
+          <text class="summary-value">{{plotForm.area}} {{plotForm.unit}}</text>
+        </view>
+        <view class="summary-row">
+          <text class="summary-label">土壤</text>
+          <text class="summary-value">{{plotForm.soilType}}</text>
+        </view>
+        <view class="summary-row">
+          <text class="summary-label">灌溉</text>
+          <text class="summary-value">{{plotForm.irrigationType}}</text>
+        </view>
+        <view class="summary-row" wx:if="{{selectedCrops.length > 0}}">
+          <text class="summary-label">作物</text>
+          <text class="summary-value">{{selectedCropNames}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-bar">
+    <button class="btn-prev" wx:if="{{currentStep > 1}}" bindtap="prevStep">上一步</button>
+    <button class="btn-next" wx:if="{{currentStep < 3}}" bindtap="nextStep">下一步</button>
+    <button class="btn-complete" wx:if="{{currentStep === 3}}" bindtap="complete">完成创建</button>
+  </view>
+</view>

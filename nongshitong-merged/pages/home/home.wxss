@@ -1,0 +1,309 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #e8f5e9 0%, #f5f5f0 30%);
+  padding: 0;
+}
+
+.header {
+  padding: 30rpx;
+  padding-top: env(safe-area-inset-top);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.date {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+.lunar {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 26rpx;
+  color: #2d5a27;
+  background: rgba(45, 90, 39, 0.1);
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.location .icon {
+  font-size: 24rpx;
+}
+
+.solar-term-card {
+  margin: 0 30rpx;
+  background: linear-gradient(135deg, #2d5a27 0%, #4a8f43 100%);
+  border-radius: 24rpx;
+  padding: 40rpx 30rpx;
+  color: #ffffff;
+  box-shadow: 0 8rpx 30rpx rgba(45, 90, 39, 0.3);
+}
+
+.solar-term-main {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-bottom: 30rpx;
+}
+
+.solar-icon {
+  font-size: 80rpx;
+}
+
+.solar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.solar-name {
+  font-size: 44rpx;
+  font-weight: 700;
+}
+
+.solar-desc {
+  font-size: 26rpx;
+  opacity: 0.9;
+}
+
+.next-term {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.2);
+  font-size: 26rpx;
+}
+
+.countdown {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+}
+
+.weather-section {
+  margin: 30rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.weather-current {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.weather-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+}
+
+.weather-icon {
+  font-size: 60rpx;
+}
+
+.temperature {
+  font-size: 72rpx;
+  font-weight: 300;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+.degree {
+  font-size: 28rpx;
+  color: #666666;
+  margin-top: 10rpx;
+}
+
+.weather-detail {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.weather-text {
+  font-size: 28rpx;
+  color: #333333;
+}
+
+.weather-extra {
+  display: flex;
+  gap: 20rpx;
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.weather-tips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.tip-tag {
+  background: #f0f7ee;
+  color: #2d5a27;
+  padding: 10rpx 20rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+}
+
+.reminder-section {
+  margin: 0 30rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.more-btn {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  color: #2d5a27;
+  font-size: 26rpx;
+}
+
+.arrow {
+  font-size: 32rpx;
+}
+
+.reminder-list {
+  background: #ffffff;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.reminder-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.reminder-item:last-child {
+  border-bottom: none;
+}
+
+.reminder-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.reminder-header {
+  display: flex;
+  gap: 12rpx;
+}
+
+.crop-tag {
+  background: #e8f5e9;
+  color: #2d5a27;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+}
+
+.stage-tag {
+  background: #fff3e0;
+  color: #ff9800;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+}
+
+.reminder-text {
+  font-size: 28rpx;
+  color: #333333;
+  line-height: 1.5;
+}
+
+.reminder-plot {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.reminder-status {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.reminder-status.pending {
+  background: #fff3e0;
+  color: #ff9800;
+}
+
+.reminder-status.completed {
+  background: #e8f5e9;
+  color: #4caf50;
+}
+
+.empty-reminder {
+  padding: 60rpx 30rpx;
+  text-align: center;
+  color: #999999;
+  font-size: 28rpx;
+}
+
+.quick-actions {
+  margin: 30rpx;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+}
+
+.action-item {
+  background: #ffffff;
+  border-radius: 20rpx;
+  padding: 30rpx 10rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+}
+
+.action-item:active {
+  transform: scale(0.95);
+}
+
+.action-icon {
+  font-size: 48rpx;
+}
+
+.action-item text:last-child {
+  font-size: 24rpx;
+  color: #666666;
+}

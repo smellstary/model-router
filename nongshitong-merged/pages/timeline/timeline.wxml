@@ -1,0 +1,87 @@
+<view class="container">
+  <view class="header">
+    <view class="year-nav">
+      <text class="year-btn prev" bindtap="prevYear">‹</text>
+      <text class="year">{{currentYear}}</text>
+      <text class="year-btn next" bindtap="nextYear">›</text>
+    </view>
+    <view class="view-tabs">
+      <text class="tab {{viewMode === 'term' ? 'active' : ''}}" bindtap="switchView" data-mode="term">节气</text>
+      <text class="tab {{viewMode === 'month' ? 'active' : ''}}" bindtap="switchView" data-mode="month">月份</text>
+      <text class="tab {{viewMode === 'year' ? 'active' : ''}}" bindtap="switchView" data-mode="year">年历</text>
+    </view>
+  </view>
+
+  <view class="timeline-content" wx:if="{{viewMode === 'term'}}">
+    <view class="current-indicator">
+      <view class="current-tag">
+        <text>当前节气</text>
+      </view>
+    </view>
+    <view class="terms-scroll">
+      <view class="terms-list">
+        <view 
+          class="term-item {{term.name === currentTerm.name ? 'current' : ''}}" 
+          wx:for="{{termsForYear}}" 
+          wx:key="name"
+        >
+          <view class="term-icon">{{term.icon}}</view>
+          <view class="term-info">
+            <text class="term-name">{{term.name}}</text>
+            <text class="term-date">{{term.month}}月{{term.day}}日</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="month-content" wx:if="{{viewMode === 'month'}}">
+    <view class="month-grid">
+      <view class="month-item" wx:for="{{months}}" wx:key="index" bindtap="showMonthTerms" data-month="{{index + 1}}">
+        <text class="month-num">{{index + 1}}月</text>
+        <view class="month-terms">
+          <text class="month-term-tag" wx:for="{{item}}" wx:key="name" wx:for-item="t">{{t.name}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="year-content" wx:if="{{viewMode === 'year'}}">
+    <view class="year-overview">
+      <view class="season-section" wx:for="{{seasons}}" wx:key="name">
+        <view class="season-header">
+          <text class="season-icon">{{item.icon}}</text>
+          <text class="season-name">{{item.name}}</text>
+        </view>
+        <view class="season-terms">
+          <view class="season-term" wx:for="{{item.terms}}" wx:key="name" wx:for-item="t">
+            <text class="st-name">{{t.name}}</text>
+            <text class="st-date">{{t.month}}/{{t.day}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="term-detail-modal" wx:if="{{showDetail}}" catchtap="closeDetail">
+    <view class="detail-card" catchtap="stopPropagation">
+      <view class="detail-header">
+        <text class="detail-icon">{{selectedTerm.icon}}</text>
+        <view class="detail-title">
+          <text class="detail-name">{{selectedTerm.name}}</text>
+          <text class="detail-date">{{selectedTerm.year}}年{{selectedTerm.month}}月{{selectedTerm.day}}日</text>
+        </view>
+        <text class="close-btn" bindtap="closeDetail">✕</text>
+      </view>
+      <view class="detail-content">
+        <text class="detail-desc">{{selectedTerm.description}}</text>
+        <view class="farming-tips">
+          <text class="tips-title">农事建议</text>
+          <view class="tips-list">
+            <text wx:for="{{getFarmingTips(selectedTerm.name)}}" wx:key="index">{{index + 1}}. {{item}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
