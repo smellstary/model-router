@@ -20,6 +20,12 @@ from execution.system import ExecutionSystem
 from perception.system import PerceptionSystem
 from body.system import BodyMappingSystem
 from image.system import ImageAndQiSystem
+from skill.input_cache import (
+    InputCacheSystem,
+    CacheConfig,
+    CacheStrategy,
+    create_cache_system
+)
 
 
 @dataclass
@@ -45,7 +51,7 @@ class AgentResponse:
 class OrientalWisdomAgent:
     """东方智慧智能体主类"""
     
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: Optional[str] = None, enable_cache: bool = True):
         self.config = get_config(config_path)
         
         self.memory_system = MemorySystem(self.config)
@@ -55,9 +61,21 @@ class OrientalWisdomAgent:
         self.body_system = BodyMappingSystem(self.config)
         self.image_system = ImageAndQiSystem(self.config)
         
+        self.enable_cache = enable_cache
+        self.input_cache: Optional[InputCacheSystem] = None
+        if enable_cache:
+            cache_config = CacheConfig(
+                max_entries=1000,
+                similarity_threshold=0.8,
+                strategy=CacheStrategy.SEMANTIC_SIMILARITY
+            )
+            self.input_cache = create_cache_system(cache_config)
+        
         self.status = "initialized"
         self.start_time: Optional[datetime] = None
         self.cycle_count = 0
+        self.cache_hits = 0
+        self.cache_misses = 0
         
         self._main_loop_task: Optional[asyncio.Task] = None
         self._is_running = False
@@ -95,15 +113,27 @@ class OrientalWisdomAgent:
         self.status = "stopped"
     
     async def process(self, input_data: Any) -> AgentResponse:
-        """处理输入"""
+        """处理输入 - 支持缓存优化"""
         self.cycle_count += 1
         
         response_text = ""
         actions_taken = []
         memory_updates = []
         state_changes = {}
+        cached_response = None
+        cache_hit = False
         
-        if isinstance(input_data, str):
+        # 检查缓存
+        if isinstance(input_data, str) and self.enable_cache and self.input_cache:
+            cached_response, similarity = await self.input_cache.get(input_data)
+            if cached_response:
+                response_text = cached_response
+                cache_hit = True
+                self.cache_hits += 1
+                state_changes['cache_hit'] = True
+                state_changes['similarity'] = similarity
+        
+        if not cache_hit and isinstance(input_data, str):
             perception = self.perception_system.perceive(
                 SenseType.MENTAL,
                 {'thought': input_data}
@@ -140,8 +170,14 @@ class OrientalWisdomAgent:
                 'cycle': self.cycle_count,
                 'vitality': body_health.vitality_score,
                 'thinking_confidence': thinking_result.confidence,
-                'philosophy_contributions': thinking_result.philosophy_contributions
+                'philosophy_contributions': thinking_result.philosophy_contributions,
+                'cache_hit': False
             }
+            
+            # 存入缓存
+            if self.enable_cache and self.input_cache:
+                await self.input_cache.put(input_data, response_text, tokens_used=150)
+                self.cache_misses += 1
         
         return AgentResponse(
             response_text=response_text,
@@ -209,14 +245,34 @@ class OrientalWisdomAgent:
         energy_level = body_state.get('metabolism', {}).get('qi_total', 0) / 100.0
         vitality = body_state.get('vitality', 0.8)
         
+        active_systems = ['memory', 'thinking', 'execution', 'perception', 'body', 'image']
+        if self.enable_cache:
+            active_systems.append('input_cache')
+        
         return AgentState(
             status=self.status,
             uptime=uptime,
             cycle_count=self.cycle_count,
             energy_level=energy_level,
             vitality=vitality,
-            active_systems=['memory', 'thinking', 'execution', 'perception', 'body', 'image']
+            active_systems=active_systems
         )
+    
+    def get_cache_stats(self) -> Optional[Dict]:
+        """获取缓存统计"""
+        if self.input_cache:
+            stats = self.input_cache.get_stats()
+            return {
+                'total_queries': stats.total_queries,
+                'total_hits': stats.total_hits,
+                'total_misses': stats.total_misses,
+                'hit_rate': stats.hit_rate,
+                'tokens_saved': stats.total_tokens_saved,
+                'cache_size': stats.cache_size,
+                'agent_hits': self.cache_hits,
+                'agent_misses': self.cache_misses
+            }
+        return None
     
     async def get_full_state(self) -> Dict[str, Any]:
         """获取完整状态"""
