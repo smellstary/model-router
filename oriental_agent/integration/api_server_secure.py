@@ -23,9 +23,14 @@ import threading
 from core.agent import OrientalWisdomAgent
 from image.system import ImageAndQiSystem
 from commercial import RiskLevel
+from integration.config_secure import SECURITY_CONFIG as CONFIG_SECURE_CONFIG
 
 app = Flask(__name__)
-CORS(app)
+
+# CORS: 生产环境应通过环境变量 ORIGINS 配置，默认仅允许 localhost
+import os
+_allowed_origins = os.environ.get('ORIGINS', 'http://localhost:5000,http://127.0.0.1:5000').split(',')
+CORS(app, origins=[o.strip() for o in _allowed_origins], supports_credentials=True)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -63,10 +68,12 @@ def check_rate_limit(ip):
         minute_limit = rate_limit['requests_per_minute']
         hour_limit = rate_limit['requests_per_hour']
 
+        # 只保留最近一小时内的记录
         recent_requests = [
             t for t in rate_limit_storage[ip]
             if current_time - t < 3600
         ]
+        rate_limit_storage[ip] = recent_requests
 
         recent_requests_minute = [
             t for t in recent_requests
@@ -77,15 +84,21 @@ def check_rate_limit(ip):
             logger.warning(f"Rate limit exceeded for IP {ip} (per minute)")
             return False
 
-        if len(rate_limit_storage[ip]) >= hour_limit:
+        # 小时判断也基于已清理的最近一小时窗口，而不是未清理的原始列表
+        if len(recent_requests) >= hour_limit:
             logger.warning(f"Rate limit exceeded for IP {ip} (per hour)")
             return False
 
         rate_limit_storage[ip].append(current_time)
-        rate_limit_storage[ip] = [
-            t for t in rate_limit_storage[ip]
-            if current_time - t < 3600
-        ]
+
+        # 额外清理：整体存储超过 500 个 IP 时，移除空闲 IP
+        if len(rate_limit_storage) > 500:
+            expired = [
+                k for k, v in rate_limit_storage.items()
+                if not v or (current_time - v[-1]) > 7200
+            ]
+            for k in expired:
+                del rate_limit_storage[k]
 
         return True
 
@@ -502,8 +515,13 @@ def openclaw_webhook():
         response = asyncio.run(agent.process(sanitized_message))
         reply = response.response_text if response and response.response_text else "处理完成"
     except Exception as e:
-        logger.error(f"Error processing message: {str(e)}")
-        reply = f"处理消息时出错: {str(e)}"
+        logger.error(f"Error processing message: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'reply': '服务内部错误，请稍后再试',
+            'error_code': 'INTERNAL_ERROR',
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
     return jsonify({
         'success': True,
@@ -542,8 +560,8 @@ def hermes_commercial():
 
         return jsonify(serialize_dict(result))
     except Exception as e:
-        logger.error(f"Error in hermes_commercial: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error in hermes_commercial: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Internal server error', 'error_code': 'HERMES_COMMERCIAL_ERROR'}), 500
 
 
 @app.route('/hermes/avatar', methods=['POST'])
@@ -577,8 +595,8 @@ def hermes_avatar():
 
         return jsonify(result)
     except Exception as e:
-        logger.error(f"Error in hermes_avatar: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Error in hermes_avatar: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Internal server error', 'error_code': 'HERMES_AVATAR_ERROR'}), 500
 
 
 # ==================== 错误处理 ====================
@@ -603,12 +621,16 @@ def handle_exception(e):
 # ==================== 启动 ====================
 
 if __name__ == '__main__':
+    _host = os.environ.get('HOST', '127.0.0.1')
+    _port = int(os.environ.get('PORT', '5000'))
+    _debug = os.environ.get('DEBUG', 'false').lower() == 'true'
+
     print("=" * 60)
     print("🛡️  东方智慧智能体 API 服务 - 安全增强版")
     print("=" * 60)
-    print("📍 本地地址: http://localhost:5000")
-    print("📍 OpenClaw Webhook: http://localhost:5000/webhook/openclaw")
-    print("📍 Hermes接口: http://localhost:5000/hermes/commercial")
+    print(f"📍 监听地址: http://{_host}:{_port}")
+    print(f"📍 OpenClaw Webhook: http://{_host}:{_port}/webhook/openclaw")
+    print(f"📍 Hermes接口: http://{_host}:{_port}/hermes/commercial")
     print("=" * 60)
     print("🔒 安全特性:")
     print(f"   - IP白名单: {'启用' if SECURITY_CONFIG['enable_ip_whitelist'] else '禁用'}")
@@ -616,5 +638,6 @@ if __name__ == '__main__':
     print(f"   - 输入验证: {'启用' if SECURITY_CONFIG['enable_input_validation'] else '禁用'}")
     print(f"   - 请求日志: {'启用' if SECURITY_CONFIG['enable_request_logging'] else '禁用'}")
     print(f"   - 安全头: {'启用' if SECURITY_CONFIG['enable_security_headers'] else '禁用'}")
+    print(f"   - DEBUG: {'启用 (警告: 勿在生产环境开启)' if _debug else '关闭'}")
     print("=" * 60)
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host=_host, port=_port, debug=_debug)

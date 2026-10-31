@@ -3,9 +3,39 @@
 """
 
 import sys
+import os
 import traceback
 from datetime import datetime
 from typing import Dict, List, Tuple, Any
+
+
+def _exec_module(path: str) -> None:
+    """执行模块源码，注入常用 builtins 避免 exec 命名空间缺失"""
+    from dataclasses import dataclass, field, fields, is_dataclass
+    from enum import Enum
+    import random, math, uuid
+    builtin_extra = {
+        'dataclass': dataclass, 'field': field, 'fields': fields, 'is_dataclass': is_dataclass,
+        'Enum': Enum, 'datetime': datetime,
+        'random': random, 'math': math, 'uuid': uuid,
+        'Dict': Dict, 'List': List, 'Tuple': Tuple, 'Any': Any,
+    }
+    pass
+    try:
+        code = open(path, 'r', encoding='utf-8').read()
+    except FileNotFoundError:
+        return
+    ns = {**globals(), **builtin_extra}
+    # 模块级的 builtins 也要加
+    for k, v in builtin_extra.items():
+        ns.setdefault(k, v)
+    exec(code, ns)
+    # 把 exec 后产生的类/函数带回 globals，供后续闭包内 test_func 引用
+    for k, v in ns.items():
+        if k.startswith('_') and k != '__builtins__':
+            continue
+        if k not in globals() or not k.startswith('_'):
+            globals()[k] = v
 
 class SystemVerifier:
     def __init__(self):
@@ -23,6 +53,7 @@ class SystemVerifier:
                 self._record_result(module_name, test_name, True, None)
                 return True
             else:
+                self.failed_tests += 1
                 self._record_result(module_name, test_name, False, "Test returned False")
                 return False
         except Exception as e:
@@ -72,8 +103,8 @@ class SystemVerifier:
 
 def verify_seven_aperture_heart(verifier: SystemVerifier):
     """验证七窍玲珑心系统"""
-    sys.path.insert(0, '/workspace/oriental_agent')
-    exec(open('/workspace/oriental_agent/core/seven_aperture_heart.py').read())
+    pass
+    _exec_module('/workspace/oriental_agent/core/seven_aperture_heart.py')
     
     def test_create():
         heart = SevenApertureHeartSystem()
@@ -116,8 +147,8 @@ def verify_seven_aperture_heart(verifier: SystemVerifier):
 
 def verify_metabolism(verifier: SystemVerifier):
     """验证代谢系统"""
-    sys.path.insert(0, '/workspace/oriental_agent')
-    exec(open('/workspace/oriental_agent/body/metabolism.py').read())
+    pass
+    _exec_module('/workspace/oriental_agent/body/metabolism.py')
     
     def test_create():
         system = MetabolismSystem()
@@ -158,8 +189,8 @@ def verify_metabolism(verifier: SystemVerifier):
 
 def verify_liver_detox(verifier: SystemVerifier):
     """验证肝胆排毒系统"""
-    sys.path.insert(0, '/workspace/oriental_agent')
-    exec(open('/workspace/oriental_agent/body/liver_detox.py').read())
+    pass
+    _exec_module('/workspace/oriental_agent/body/liver_detox.py')
     
     def test_create():
         system = LiverGallbladderDetoxSystem()
@@ -205,10 +236,10 @@ def verify_liver_detox(verifier: SystemVerifier):
 
 def verify_body_master(verifier: SystemVerifier):
     """验证身体综合管理系统"""
-    sys.path.insert(0, '/workspace/oriental_agent')
-    exec(open('/workspace/oriental_agent/body/metabolism.py').read())
-    exec(open('/workspace/oriental_agent/body/liver_detox.py').read())
-    exec(open('/workspace/oriental_agent/body/body_master.py').read())
+    pass
+    _exec_module('/workspace/oriental_agent/body/metabolism.py')
+    _exec_module('/workspace/oriental_agent/body/liver_detox.py')
+    _exec_module('/workspace/oriental_agent/body/body_master.py')
     
     def test_create():
         body = BodyMasterSystem()
@@ -245,8 +276,8 @@ def verify_body_master(verifier: SystemVerifier):
 
 def verify_prediction_engine(verifier: SystemVerifier):
     """验证预测引擎"""
-    sys.path.insert(0, '/workspace/oriental_agent')
-    exec(open('/workspace/oriental_agent/prediction/prediction_engine.py').read())
+    pass
+    _exec_module('/workspace/oriental_agent/prediction/prediction_engine.py')
     
     def test_yijing():
         engine = YiJingEngine()
@@ -262,7 +293,7 @@ def verify_prediction_engine(verifier: SystemVerifier):
     def test_meihua():
         engine = MeihuaEngine()
         result = engine.analyze("主体", "客体")
-        return result is not None and result.tiangan is not None
+        return result is not None and result.result.get("tiangan") is not None
     
     def test_wuxing_pred():
         engine = WuxingPredictionEngine()
@@ -290,8 +321,8 @@ def verify_prediction_engine(verifier: SystemVerifier):
 
 def verify_instinct_system(verifier: SystemVerifier):
     """验证本能系统"""
-    sys.path.insert(0, '/workspace/oriental_agent')
-    exec(open('/workspace/oriental_agent/body/instinct_system.py').read())
+    pass
+    _exec_module('/workspace/oriental_agent/body/instinct_system.py')
     
     def test_create():
         system = InstinctSystem()
@@ -326,10 +357,10 @@ def verify_instinct_system(verifier: SystemVerifier):
 
 def stress_test(verifier: SystemVerifier):
     """压力测试"""
-    sys.path.insert(0, '/workspace/oriental_agent')
-    exec(open('/workspace/oriental_agent/core/seven_aperture_heart.py').read())
-    exec(open('/workspace/oriental_agent/body/metabolism.py').read())
-    exec(open('/workspace/oriental_agent/prediction/prediction_engine.py').read())
+    pass
+    _exec_module('/workspace/oriental_agent/core/seven_aperture_heart.py')
+    _exec_module('/workspace/oriental_agent/body/metabolism.py')
+    _exec_module('/workspace/oriental_agent/prediction/prediction_engine.py')
     
     def test_heart_100():
         heart = SevenApertureHeartSystem()

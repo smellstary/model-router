@@ -636,6 +636,7 @@ class TuibeituPredictor:
     def __init__(self):
         self.evolver = SequenceEvolver()
         self.prediction_history: List[PredictionResult] = []
+        self._max_history = 200
         self._initialize_tuibeitu_data()
 
     def _initialize_tuibeitu_data(self):
@@ -728,6 +729,8 @@ class TuibeituPredictor:
         )
 
         self.prediction_history.append(result)
+        if len(self.prediction_history) > self._max_history:
+            self.prediction_history = self.prediction_history[-self._max_history:]
         return result
 
     def _get_image_number_from_gua(self, gua: GuaSymbol) -> int:

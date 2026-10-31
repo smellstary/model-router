@@ -25,6 +25,7 @@ class SystemVerifier:
                 self._record_result(module_name, test_name, True, None)
                 return True
             else:
+                self.failed_tests += 1
                 self._record_result(module_name, test_name, False, "Test returned False")
                 return False
         except Exception as e:

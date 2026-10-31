@@ -58,6 +58,7 @@ class EarthLayer:
         self.environmental_memories: Dict[str, MemoryNode] = {}
         self.stimulus_patterns: Dict[str, int] = {}
         self.interaction_history: List[Dict] = []
+        self._max_history = 500
         self.adaptation_models: Dict[str, float] = {}
     
     def store_interaction(
@@ -74,7 +75,10 @@ class EarthLayer:
             'response': response,
             'timestamp': datetime.now()
         })
-        
+        # 容量上限保护
+        if len(self.interaction_history) > self._max_history:
+            self.interaction_history = self.interaction_history[-self._max_history:]
+
         if stimulus_type not in self.stimulus_patterns:
             self.stimulus_patterns[stimulus_type] = 0
         self.stimulus_patterns[stimulus_type] += 1

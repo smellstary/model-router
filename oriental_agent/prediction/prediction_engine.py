@@ -56,14 +56,10 @@ class TrigramType(Enum):
 
 class HexagramType(Enum):
     """六十四卦枚举"""
+    # 1-2: 重卦
     QIAN = ("乾", "乾为天", "天", 1)
     KUN = ("坤", "坤为地", "地", 2)
-    ZHEN = ("震", "震为雷", "雷", 51)
-    XUN = ("巽", "巽为风", "风", 57)
-    KAN = ("坎", "坎为水", "水", 29)
-    LI = ("离", "离为火", "火", 30)
-    GEN = ("艮", "艮为山", "山", 52)
-    DUI = ("兑", "兑为泽", "泽", 58)
+    # 3-28: 标准卦序
     GUA_1 = ("屯", "水雷屯", "雷", 3)
     GUA_2 = ("蒙", "山水蒙", "山", 4)
     GUA_3 = ("需", "水天需", "水", 5)
@@ -90,10 +86,46 @@ class HexagramType(Enum):
     GUA_24 = ("大畜", "山天大畜", "山", 26)
     GUA_25 = ("颐", "山雷颐", "山", 27)
     GUA_26 = ("大过", "泽风大过", "泽", 28)
+    # 29-30: 坎离（与 KAN/LI 同名但独立 number，供 tuibeitu_prediction.py 引用）
     GUA_27 = ("坎", "坎为水", "水", 29)
     GUA_28 = ("离", "离为火", "火", 30)
+    # 31-32: 咸恒
     GUA_29 = ("咸", "泽山咸", "泽", 31)
     GUA_30 = ("恒", "雷风恒", "雷", 32)
+    # 33-50: 补全剩余卦
+    GUA_31 = ("遁", "天山遁", "天", 33)
+    GUA_32 = ("大壮", "雷天大壮", "雷", 34)
+    GUA_33 = ("晋", "火地晋", "火", 35)
+    GUA_34 = ("明夷", "地火明夷", "地", 36)
+    GUA_35 = ("家人", "风火家人", "风", 37)
+    GUA_36 = ("睽", "火泽睽", "火", 38)
+    GUA_37 = ("蹇", "水山蹇", "水", 39)
+    GUA_38 = ("解", "雷水解", "雷", 40)
+    GUA_39 = ("损", "山泽损", "山", 41)
+    GUA_40 = ("益", "风雷益", "风", 42)
+    GUA_41 = ("夬", "泽天夬", "泽", 43)
+    GUA_42 = ("姤", "天风姤", "天", 44)
+    GUA_43 = ("萃", "泽地萃", "泽", 45)
+    GUA_44 = ("升", "地风升", "地", 46)
+    GUA_45 = ("困", "泽水困", "泽", 47)
+    GUA_46 = ("井", "水风井", "水", 48)
+    GUA_47 = ("革", "泽火革", "泽", 49)
+    GUA_48 = ("鼎", "火风鼎", "火", 50)
+    # 51-58: 重卦别名
+    ZHEN = ("震", "震为雷", "雷", 51)
+    GEN = ("艮", "艮为山", "山", 52)
+    GUA_49 = ("渐", "风山渐", "风", 53)
+    GUA_50 = ("归妹", "雷泽归妹", "雷", 54)
+    GUA_51 = ("丰", "雷火丰", "雷", 55)
+    GUA_52 = ("旅", "火山旅", "火", 56)
+    XUN = ("巽", "巽为风", "风", 57)
+    DUI = ("兑", "兑为泽", "泽", 58)
+    GUA_53 = ("涣", "风水涣", "水", 59)
+    GUA_54 = ("节", "水泽节", "水", 60)
+    GUA_55 = ("中孚", "风泽中孚", "风", 61)
+    GUA_56 = ("小过", "雷山小过", "雷", 62)
+    GUA_57 = ("既济", "水火既济", "水", 63)
+    GUA_58 = ("未济", "火水未济", "火", 64)
     
     def __init__(self, abbr: str, name: str, element: str, number: int):
         self._abbr = abbr
@@ -235,23 +267,25 @@ class YiJingEngine:
     
     def __init__(self):
         self.trigrams = {t.value[0]: t for t in TrigramType}
-        
+        # 独立随机数生成器，不影响全局 random 状态
+        self._rng = random.Random()
+
     def generate_hexagram(self, seed: Optional[int] = None) -> Hexagram:
         """生成卦象"""
         if seed is None:
-            seed = int(datetime.now().timestamp()) % 1000
-        
-        random.seed(seed)
-        
-        lower_lines = [random.randint(0, 1) for _ in range(3)]
-        upper_lines = [random.randint(0, 1) for _ in range(3)]
-        
+            seed = int(datetime.now().timestamp()) % 10000
+
+        self._rng.seed(seed)
+
+        lower_lines = [self._rng.randint(0, 1) for _ in range(3)]
+        upper_lines = [self._rng.randint(0, 1) for _ in range(3)]
+
         lower_trigram = self._lines_to_trigram(lower_lines)
         upper_trigram = self._lines_to_trigram(upper_lines)
-        
+
         hex_num = self._trigrams_to_hexagram_number(lower_trigram, upper_trigram)
         hex_type = self._number_to_hexagram(hex_num)
-        
+
         return Hexagram(
             hexagram_type=hex_type,
             upper_trigram=upper_trigram,
@@ -281,10 +315,12 @@ class YiJingEngine:
     
     def _number_to_hexagram(self, number: int) -> HexagramType:
         """卦数转为卦"""
-        for h in HexagramType:
-            if h.number == number:
-                return h
-        return HexagramType.QIAN
+        # 优先按 number 查找，避免不同 HexagramType 成员共享同一 number 时的不确定性
+        matches = [h for h in HexagramType if h.number == number]
+        if not matches:
+            raise ValueError(f"Invalid hexagram number: {number}, expected 1-64")
+        # 同一 number 可能有多个成员（如 QIAN 和 GUA_5 都映射到乾相关），取第一个
+        return matches[0]
     
     def change_hexagram(self, hexagram: Hexagram, changing_lines: List[int]) -> Hexagram:
         """卦变：生成变卦"""
@@ -351,28 +387,33 @@ class YiJingEngine:
     
     def predict(self, query: str, context: Optional[Dict] = None) -> PredictionResult:
         """进行预测"""
-        seed = hash(query) % 10000
-        
+        # 使用稳定哈希代替内置 hash()（Python hash() 默认带随机盐，进程间不稳定）
+        import hashlib
+        seed = int(hashlib.sha256(query.encode('utf-8')).hexdigest(), 16) % 10000
+
         hexagram = self.generate_hexagram(seed)
         interpretation = self.interpret_hexagram(hexagram)
-        
-        confidence = 0.6 + random.random() * 0.3
-        
+
+        # 置信度基于种子确定性计算，避免纯随机导致结果不可复现
+        # 同时保留合理波动：基础 0.5 + 种子贡献 0.3 + 小幅随机 0.1
+        base_confidence = 0.5 + (seed % 3000) / 10000.0  # 0.5 ~ 0.8
+        confidence = base_confidence + self._rng.random() * 0.1  # 0.5 ~ 0.9
+
         result = {
             "hexagram": hexagram.get_name(),
             "symbol": hexagram.hexagram_type.abbr,
             "interpretation": interpretation
         }
-        
+
         return PredictionResult(
             prediction_id=str(uuid.uuid4())[:8],
             prediction_type=PredictionType.YI_JING,
             timestamp=datetime.now(),
             input_data={"query": query, "context": context},
             result=result,
-            confidence=confidence,
+            confidence=round(confidence, 3),
             interpretation=interpretation.get("advice", ""),
-            probability=confidence * 0.8
+            probability=round(confidence * 0.8, 3)
         )
 
 
@@ -398,26 +439,27 @@ class MeihuaEngine:
     
     def __init__(self):
         self.prediction_history: List[PredictionResult] = []
-    
+        self._max_history = 200  # 历史记录容量上限，防止长时间运行时内存膨胀
+
     def analyze(self, subject: str, object_: str, time: Optional[datetime] = None) -> PredictionResult:
         """分析体用关系"""
         if time is None:
             time = datetime.now()
-        
+
         subject_hash = sum(ord(c) for c in subject)
         object_hash = sum(ord(c) for c in object_)
-        
+
         tiangan_idx = (subject_hash + time.hour) % 10
         dizhi_idx = (object_hash + time.minute) % 12
-        
+
         tiangan = self.TIANGAN[tiangan_idx]
         dizhi = self.DIZHI[dizhi_idx]
-        
+
         subject_wuxing = self.WUXING_TIANGAN[tiangan]
         object_wuxing = self.WUXING_DIZHI[dizhi]
-        
+
         relation = self._analyze_wuxing_relation(subject_wuxing, object_wuxing)
-        
+
         result = {
             "tiangan": tiangan,
             "dizhi": dizhi,
@@ -425,7 +467,7 @@ class MeihuaEngine:
             "object_wuxing": object_wuxing,
             "relation": relation
         }
-        
+
         prediction = PredictionResult(
             prediction_id=str(uuid.uuid4())[:8],
             prediction_type=PredictionType.MEIHUA,
@@ -436,8 +478,10 @@ class MeihuaEngine:
             interpretation=self._interpret_relation(relation),
             probability=0.7 if relation["type"] == "相生" else 0.5
         )
-        
+
         self.prediction_history.append(prediction)
+        if len(self.prediction_history) > self._max_history:
+            self.prediction_history = self.prediction_history[-self._max_history:]
         return prediction
     
     def _analyze_wuxing_relation(self, element1: str, element2: str) -> Dict[str, Any]:
@@ -760,6 +804,7 @@ class PredictionEngine:
             PredictionType.WUXING: 0.25,
             PredictionType.GANZHI: 0.2
         }
+        self._max_history = 500  # 综合预测历史容量
     
     def predict(
         self,
@@ -808,6 +853,8 @@ class PredictionEngine:
         )
         
         self.prediction_history.append(final_result)
+        if len(self.prediction_history) > self._max_history:
+            self.prediction_history = self.prediction_history[-self._max_history:]
         return final_result
     
     def _predict_by_method(self, query: str, method: PredictionType, context: Optional[Dict]) -> Optional[PredictionResult]:
