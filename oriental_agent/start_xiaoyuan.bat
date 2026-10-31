@@ -37,12 +37,12 @@ if exist ".venv\Scripts\python.exe" (
 )
 
 rem ---- Install deps ----
-"%PY_CMD%" -c "import flask, flask_cors" >nul 2>&1
+"%PY_CMD%" -c "import flask, flask_cors, yaml, requests" >nul 2>&1
 if errorlevel 1 (
-    echo [..] Installing dependencies...
-    "%PY_CMD%" -m pip install flask flask-cors --quiet
+    echo [..] Installing dependencies (flask, flask-cors, pyyaml, requests)...
+    "%PY_CMD%" -m pip install flask flask-cors pyyaml requests --quiet
     if errorlevel 1 (
-        echo [FAIL] pip install failed. Try: python -m pip install flask flask-cors
+        echo [FAIL] pip install failed. Try: python -m pip install flask flask-cors pyyaml requests
         pause
         exit /b 1
     )
