@@ -506,66 +506,118 @@ def sanitize_dict(data):
 
 # ==================== Emotion / 动画提示推断 ====================
 
-_EMOTION_KEYWORDS = {
-    'happy':  ['好', '成功', '机会', '顺势', '上升', '吉', '利', '进', '喜', '光明', '得', '收获'],
-    'sad':    ['悲', '失', '下', '退', '损', '凶', '不利', '暗', '压力', '焦虑', '抑郁'],
-    'calm':   ['平衡', '中庸', '和谐', '合道', '无为', '稳', '静', '安', '守'],
-    'alert':  ['注意', '风险', '警惕', '谨慎', '建议', '推演', '预测', '凶'],
-    'thinking': ['分析', '洞察', '辩证', '思考', '判断', '权衡', '机会与风险'],
-    'gentle': ['善', '仁', '爱', '德', '礼', '义', '慈悲', '帮助'],
+# ==================== Emotion / 动画提示推断 ====================
+
+# 12 种意图 → 最贴合的情绪（主信号，权重最高）
+_INTENT_EMOTION_MAP = {
+    'hello':                  'happy',     # 问候 → 开心
+    'introduce_self':         'thinking',  # 自我介绍 → 思考（介绍中）
+    'commercial_opportunity': 'happy',     # 商机 → 看好/喜悦
+    'investment':              'thinking',  # 投资 → 深思熟虑
+    'strategy':                'thinking',  # 战略 → 深谋远虑
+    'competition':             'alert',     # 竞争 → 警觉/戒备
+    'prediction':              'thinking',  # 预测 → 推演思考
+    'body_health':             'calm',      # 养生 → 平和安稳
+    'cultivation':             'calm',      # 修炼 → 宁静入定
+    'emotion_support':        'gentle',    # 情绪支持 → 温柔安抚
+    'relationship':            'gentle',    # 人际 → 温和
+    'wisdom_advice':           'thinking',  # 智慧建议 → 思考中
 }
 
+# 用户输入里的负面词 → sadness 微调
+_USER_NEGATIVE_KEYWORDS = [
+    '压力', '焦虑', '崩溃', '抑郁', '痛苦', '难受', '不开心', '失业', '失败', '分手', '失恋', '怕', '怕输', '害怕',
+]
+
+# 预测结果里的吉凶词 → happy/sad 微调
+_PRED_GOOD_KEYWORDS = ['吉', '利', '好', '顺', '上升', '光明', '成', '有望']
+_PRED_BAD_KEYWORDS  = ['凶', '不利', '坏', '阻', '下', '退', '损', '忌', '慎']
+
 _EMOTION_DEFAULT_ANIMATION = {
-    'happy':   'talk',     # 说话动画
-    'sad':     'idle',     # 待机 + 低落
+    'happy':   'talk',
+    'sad':     'idle',
     'calm':    'idle',
-    'alert':   'blink',    # 眨眼 + 警觉
+    'alert':   'blink',
     'thinking':'blink',
     'gentle':  'talk',
 }
 
 
-def _infer_emotion(reply_text: str, state_changes: dict) -> dict:
+def _infer_emotion(reply_text: str, state_changes: dict, user_message: str = '') -> dict:
     """
-    根据回复内容和状态推断小缘应该展示的情绪和动画。
+    三级信号推断情绪:
+      L1 (主): primary_intent → 映射表
+      L2 (微): reply_text 吉凶 / user_message 负面词
+      L3 (底): philosophy contributions 底色
     返回: {'emotion': str, 'animation': str, 'confidence': float}
     """
     reply_text = reply_text or ''
-    scores: Dict[str, int] = {}
-    for emotion, keywords in _EMOTION_KEYWORDS.items():
-        scores[emotion] = sum(1 for kw in keywords if kw in reply_text)
-
-    # 合道程度高 → 偏向 calm
-    harmony = state_changes.get('thinking_confidence', 0.5)
+    user_message = user_message or ''
     primary = state_changes.get('primary_intent', '')
-    if harmony > 0.7:
-        scores['calm'] = scores.get('calm', 0) + 2
 
-    # 特定意图加成
-    if primary == 'emotion_support':
-        scores['gentle'] = scores.get('gentle', 0) + 3
-        scores['calm'] = scores.get('calm', 0) + 2
-    elif primary == 'prediction':
-        scores['thinking'] = scores.get('thinking', 0) + 3
-        scores['alert'] = scores.get('alert', 0) + 1
-    elif primary in ('hello', 'introduce_self'):
-        scores['happy'] = scores.get('happy', 0) + 3
+    # ========== L1: intent 主信号 ==========
+    emotion = _INTENT_EMOTION_MAP.get(primary, 'calm')
+    confidence = 0.6  # intent 本身给到 0.6
 
-    # 取最高分 emotion
-    if not scores or max(scores.values()) == 0:
-        best_emotion = 'calm'
-        best_score = 0
-    else:
-        best_emotion = max(scores, key=scores.get)
-        best_score = scores[best_emotion]
+    # ========== L2: reply_text + user_message 微调 ==========
+    # 2a: 用户输入里有负面情绪词 → 如果是 emotion_support 就 sad，否则 alert
+    neg_hits = sum(1 for kw in _USER_NEGATIVE_KEYWORDS if kw in user_message)
+    if neg_hits >= 2:
+        if primary == 'emotion_support':
+            emotion = 'sad'
+            confidence += 0.2
+        else:
+            emotion = 'alert'
+            confidence += 0.15
+    elif neg_hits == 1 and primary == 'emotion_support':
+        emotion = 'sad'
+        confidence += 0.1
 
-    confidence = min(best_score / 6.0, 1.0)
-    animation = _EMOTION_DEFAULT_ANIMATION.get(best_emotion, 'idle')
+    # 2b: 预测场景看吉凶 → 覆盖 L1
+    if primary == 'prediction':
+        good = sum(1 for kw in _PRED_GOOD_KEYWORDS if kw in reply_text)
+        bad  = sum(1 for kw in _PRED_BAD_KEYWORDS  if kw in reply_text)
+        if good > bad:
+            emotion = 'happy'
+            confidence += 0.25
+        elif bad > good:
+            emotion = 'alert'
+            confidence += 0.25
+        else:
+            emotion = 'thinking'
+            confidence += 0.1
+
+    # 2c: 竞争/投资场景看 reply 里的风险词 → alert
+    if primary in ('competition', 'investment', 'strategy'):
+        if any(kw in reply_text for kw in ['风险', '警惕', '谨慎', '注意', '挑战']):
+            emotion = 'alert'
+            confidence += 0.15
+
+    # ========== L3: philosophy 底色 ==========
+    philo = state_changes.get('philosophy_contributions', {}) or {}
+    fo = float(philo.get('佛家', 0))
+    dao = float(philo.get('道家', 0))
+    ru  = float(philo.get('儒家', 0))
+
+    # 道家主导 → 偏向 calm（无为、合道）
+    if dao >= 0.8 and emotion in ('thinking', 'gentle'):
+        emotion = 'calm'
+        confidence += 0.1
+
+    # 儒家主导 + emotion_support/relationship → 强化 gentle
+    if ru >= 0.8 and emotion == 'gentle':
+        confidence += 0.1
+
+    # ========== 兜底 ==========
+    if confidence < 0.5:
+        confidence = 0.5
+
+    animation = _EMOTION_DEFAULT_ANIMATION.get(emotion, 'idle')
 
     return {
-        'emotion': best_emotion,
+        'emotion': emotion,
         'animation': animation,
-        'confidence': round(confidence, 2),
+        'confidence': round(min(confidence, 1.0), 2),
     }
 
 
@@ -628,7 +680,7 @@ def desktop_dialog():
             break
 
     # emotion & animation 推断
-    emotion_info = _infer_emotion(reply_text, state_changes)
+    emotion_info = _infer_emotion(reply_text, state_changes, user_message=sanitized_message)
 
     return jsonify({
         'reply': reply_text,
