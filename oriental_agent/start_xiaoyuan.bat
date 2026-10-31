@@ -1,71 +1,71 @@
 @echo off
-REM ============================================================
-REM  小缘 × 东方智慧智能体  ——  Windows 一键启动
-REM  用法：双击本文件，或在 cmd / PowerShell 里运行
-REM ============================================================
+REM === XiaoYuan x Oriental Wisdom Agent - Windows Launcher ===
+REM Double-click to start. Close this window to stop.
 
 chcp 65001 >nul
-setlocal
+setlocal enabledelayedexpansion
 
 echo.
-echo ╔══════════════════════════════════════════════════════╗
-echo ║     小缘 × 东方智慧智能体 —— 后端启动                 ║
-echo ╚══════════════════════════════════════════════════════╝
+echo ============================================================
+echo   XiaoYuan x Oriental Wisdom Agent - Starting Backend
+echo ============================================================
 echo.
 
-REM ---- 1. 找 Python ----
+REM ---- Find Python ----
+set PY=
 where python >nul 2>&1
 if %errorlevel%==0 (
-    set "PY=python"
-) else (
-    where python3 >nul 2>&1
-    if %errorlevel%==0 (
-        set "PY=python3"
-    ) else (
-        echo ❌ 找不到 Python，请先安装 Python 3.10+（^<https://www.python.org/downloads/^>）
-        echo    安装时记得勾选 "Add Python to PATH"
-        pause
-        exit /b 1
-    )
+    for /f "delims=" %%i in ('where python') do set "PY=%%i" & goto :found_py
 )
+where python3 >nul 2>&1
+if %errorlevel%==0 (
+    for /f "delims=" %%i in ('where python3') do set "PY=%%i" & goto :found_py
+)
+echo [ERROR] Python not found. Install Python 3.10+ from https://www.python.org/downloads/
+echo         Remember to check "Add Python to PATH" during install.
+pause
+exit /b 1
 
-echo 🐍 Python 版本:
+:found_py
+for %%P in ("%PY%") do set "PYDIR=%%~dpP"
+echo [OK] Python found: %PY%
 %PY% --version
-echo.
 
-REM ---- 2. 切换到脚本所在目录 ----
+REM ---- Change to script directory ----
 cd /d "%~dp0"
+echo [OK] Working dir: %cd%
 
-REM ---- 3. 检查/创建虚拟环境 ----
+REM ---- Virtual env ----
 if not exist ".venv\Scripts\python.exe" (
-    echo 📦 首次运行，创建虚拟环境 .venv ...
+    echo [SETUP] Creating virtual environment .venv ...
     %PY% -m venv .venv
     if errorlevel 1 (
-        echo ❌ 创建虚拟环境失败
+        echo [ERROR] Failed to create virtual environment
         pause
         exit /b 1
     )
 )
 
-echo 📦 激活虚拟环境...
+echo [OK] Activating .venv ...
 call .venv\Scripts\activate.bat
+python --version
 
-REM ---- 4. 安装依赖（如果没装过 flask）----
-%PY% -c "import flask, flask_cors" 2>nul
+REM ---- Install deps ----
+python -c "import flask, flask_cors" 2>nul
 if errorlevel 1 (
-    echo 📦 安装依赖...
+    echo [SETUP] Installing dependencies (flask, flask-cors) ...
     python -m pip install --upgrade pip
     python -m pip install flask flask-cors
     if errorlevel 1 (
-        echo ❌ 依赖安装失败
+        echo [ERROR] Failed to install dependencies
         pause
         exit /b 1
     )
 ) else (
-    echo 📦 依赖已就绪
+    echo [OK] Dependencies already installed
 )
 
-REM ---- 5. 环境变量（桌面开发友好默认值）----
+REM ---- Env vars (dev-friendly defaults) ----
 set "HOST=0.0.0.0"
 set "PORT=5000"
 set "DEBUG=false"
@@ -74,25 +74,27 @@ set "ALLOW_ALL_ORIGINS=true"
 set "ENABLE_RATE_LIMITING=true"
 
 echo.
-echo ⚙️  配置:
-echo    HOST               = %HOST%
-echo    PORT               = %PORT%
-echo    ENABLE_IP_WHITELIST = %ENABLE_IP_WHITELIST%
-echo    ALLOW_ALL_ORIGINS   = %ALLOW_ALL_ORIGINS%
-echo    ENABLE_RATE_LIMITING = %ENABLE_RATE_LIMITING%
+echo ============================================================
+echo   Config:
+echo     HOST              = %HOST%
+echo     PORT              = %PORT%
+echo     IP_WHITELIST      = %ENABLE_IP_WHITELIST%
+echo     CORS_OPEN         = %ALLOW_ALL_ORIGINS%
+echo     RATE_LIMITING     = %ENABLE_RATE_LIMITING%
 echo.
-echo 📍 关键接口:
-echo    健康检查:   GET  http://127.0.0.1:%PORT%/health
-echo    桌面对话:   POST http://127.0.0.1:%PORT%/api/dialog   ← 小缘用这个
-echo    OpenClaw:   POST http://127.0.0.1:%PORT%/webhook/openclaw
-echo    状态:       GET  http://127.0.0.1:%PORT%/api/status
+echo   Endpoints:
+echo     Health   : GET  http://127.0.0.1:%PORT%/health
+echo     Dialog   : POST http://127.0.0.1:%PORT%/api/dialog   ^<-- XiaoYuan uses this
+echo     Status   : GET  http://127.0.0.1:%PORT%/api/status
+echo     Webhook  : POST http://127.0.0.1:%PORT%/webhook/openclaw
 echo.
-echo 👉 小缘调用示例 (PowerShell):
-echo    Invoke-RestMethod -Uri "http://127.0.0.1:%PORT%/api/dialog" ^
-echo      -Method Post -ContentType "application/json" ^
-echo      -Body '{\"message\":\"我想创业\",\"user_id\":\"xiaoyuan\"}'
+echo   XiaoYuan call example (PowerShell):
+echo     Invoke-RestMethod -Uri "http://127.0.0.1:%PORT%/api/dialog" ^
+echo       -Method Post -ContentType "application/json" ^
+echo       -Body '{\"message\":\"hello\",\"user_id\":\"xiaoyuan\"}'
 echo.
-echo 🚀 启动中... （关闭本窗口 = 停止服务）
+echo   Starting... (close this window to stop the server)
+echo ============================================================
 echo.
 
 python integration\api_server_secure.py
