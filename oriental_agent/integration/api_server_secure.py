@@ -27,23 +27,36 @@ from integration.config_secure import SECURITY_CONFIG as CONFIG_SECURE_CONFIG
 
 app = Flask(__name__)
 
-# CORS: 生产环境应通过环境变量 ORIGINS 配置，默认仅允许 localhost
+# CORS: 开发场景放开（ALLOW_ALL_ORIGINS=true），生产环境通过 ORIGINS 精确控制
 import os
-_allowed_origins = os.environ.get('ORIGINS', 'http://localhost:5000,http://127.0.0.1:5000').split(',')
-CORS(app, origins=[o.strip() for o in _allowed_origins], supports_credentials=True)
+_ALLOW_ALL_ORIGINS = os.environ.get('ALLOW_ALL_ORIGINS', 'false').lower() == 'true'
+if _ALLOW_ALL_ORIGINS:
+    CORS(app, supports_credentials=True)
+else:
+    _allowed_origins = os.environ.get(
+        'ORIGINS',
+        'http://localhost:5000,http://127.0.0.1:5000,http://localhost:19000'
+    ).split(',')
+    CORS(app, origins=[o.strip() for o in _allowed_origins], supports_credentials=True)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ==================== 安全配置 ====================
 
+_TRUSTED_IPS_FROM_ENV = os.environ.get(
+    'TRUSTED_IPS',
+    '127.0.0.1,::1,localhost,0.0.0.0'
+).split(',')
+_ENABLE_IP_WHITELIST = os.environ.get('ENABLE_IP_WHITELIST', 'false').lower() == 'true'
+
 SECURITY_CONFIG = {
-    'trusted_ips': ['127.0.0.1', '::1', 'localhost'],
-    'enable_ip_whitelist': True,
-    'enable_rate_limiting': True,
+    'trusted_ips': [ip.strip() for ip in _TRUSTED_IPS_FROM_ENV],
+    'enable_ip_whitelist': _ENABLE_IP_WHITELIST,
+    'enable_rate_limiting': os.environ.get('ENABLE_RATE_LIMITING', 'true').lower() == 'true',
     'rate_limit': {
-        'requests_per_minute': 60,
-        'requests_per_hour': 1000,
+        'requests_per_minute': int(os.environ.get('RATE_LIMIT_PER_MINUTE', '120')),
+        'requests_per_hour': int(os.environ.get('RATE_LIMIT_PER_HOUR', '2000')),
     },
     'enable_input_validation': True,
     'max_request_size': 1024 * 1024,
@@ -491,6 +504,147 @@ def sanitize_dict(data):
     return data
 
 
+# ==================== Emotion / 动画提示推断 ====================
+
+_EMOTION_KEYWORDS = {
+    'happy':  ['好', '成功', '机会', '顺势', '上升', '吉', '利', '进', '喜', '光明', '得', '收获'],
+    'sad':    ['悲', '失', '下', '退', '损', '凶', '不利', '暗', '压力', '焦虑', '抑郁'],
+    'calm':   ['平衡', '中庸', '和谐', '合道', '无为', '稳', '静', '安', '守'],
+    'alert':  ['注意', '风险', '警惕', '谨慎', '建议', '推演', '预测', '凶'],
+    'thinking': ['分析', '洞察', '辩证', '思考', '判断', '权衡', '机会与风险'],
+    'gentle': ['善', '仁', '爱', '德', '礼', '义', '慈悲', '帮助'],
+}
+
+_EMOTION_DEFAULT_ANIMATION = {
+    'happy':   'talk',     # 说话动画
+    'sad':     'idle',     # 待机 + 低落
+    'calm':    'idle',
+    'alert':   'blink',    # 眨眼 + 警觉
+    'thinking':'blink',
+    'gentle':  'talk',
+}
+
+
+def _infer_emotion(reply_text: str, state_changes: dict) -> dict:
+    """
+    根据回复内容和状态推断小缘应该展示的情绪和动画。
+    返回: {'emotion': str, 'animation': str, 'confidence': float}
+    """
+    reply_text = reply_text or ''
+    scores: Dict[str, int] = {}
+    for emotion, keywords in _EMOTION_KEYWORDS.items():
+        scores[emotion] = sum(1 for kw in keywords if kw in reply_text)
+
+    # 合道程度高 → 偏向 calm
+    harmony = state_changes.get('thinking_confidence', 0.5)
+    primary = state_changes.get('primary_intent', '')
+    if harmony > 0.7:
+        scores['calm'] = scores.get('calm', 0) + 2
+
+    # 特定意图加成
+    if primary == 'emotion_support':
+        scores['gentle'] = scores.get('gentle', 0) + 3
+        scores['calm'] = scores.get('calm', 0) + 2
+    elif primary == 'prediction':
+        scores['thinking'] = scores.get('thinking', 0) + 3
+        scores['alert'] = scores.get('alert', 0) + 1
+    elif primary in ('hello', 'introduce_self'):
+        scores['happy'] = scores.get('happy', 0) + 3
+
+    # 取最高分 emotion
+    if not scores or max(scores.values()) == 0:
+        best_emotion = 'calm'
+        best_score = 0
+    else:
+        best_emotion = max(scores, key=scores.get)
+        best_score = scores[best_emotion]
+
+    confidence = min(best_score / 6.0, 1.0)
+    animation = _EMOTION_DEFAULT_ANIMATION.get(best_emotion, 'idle')
+
+    return {
+        'emotion': best_emotion,
+        'animation': animation,
+        'confidence': round(confidence, 2),
+    }
+
+
+# ==================== 桌面客户端友好对话接口 ====================
+
+@app.route('/api/dialog', methods=['POST'])
+def desktop_dialog():
+    """
+    桌面客户端友好的对话接口。
+    入参: {"message": "我想创业", "user_id": "xiaoyuan_lover"}
+    出参: {
+      "reply": "...完整回答...",
+      "emotion": "happy|calm|thinking|...",
+      "animation": "talk|idle|blink",
+      "hexagram": "乾卦 / GUA_1",
+      "intent": "commercial_opportunity",
+      "confidence": 0.72,
+      "philosophy": {"佛家": 0.90, "道家": 0.50, "儒家": 0.30}
+    }
+    """
+    log_request_info()
+    data = request.json or {}
+
+    message = (
+        data.get('message')
+        or data.get('input')
+        or data.get('query')
+        or ''
+    )
+    user_id = data.get('user_id', 'anonymous')
+
+    if not message or not isinstance(message, str):
+        return jsonify({
+            'error': 'message 不能为空',
+            'error_code': 'INVALID_INPUT',
+        }), 400
+
+    is_valid, sanitized_message = validate_input(message, max_length=5000)
+    if not is_valid:
+        logger.warning(f"Input validation warning for user {user_id}")
+
+    try:
+        response = asyncio.run(agent.process(sanitized_message))
+    except Exception as e:
+        logger.error(f"Error processing dialog: {str(e)}", exc_info=True)
+        return jsonify({
+            'error': 'Internal server error',
+            'error_code': 'DIALOG_ERROR',
+        }), 500
+
+    reply_text = response.response_text if response else ''
+    state_changes = response.state_changes if response else {}
+
+    # 提取卦象（如果有的话）
+    hexagram = ''
+    for act in (response.actions_taken or []):
+        pred_res = act.get('prediction_result')
+        if pred_res and isinstance(pred_res, dict):
+            hexagram = pred_res.get('hexagram', '')
+            break
+
+    # emotion & animation 推断
+    emotion_info = _infer_emotion(reply_text, state_changes)
+
+    return jsonify({
+        'reply': reply_text,
+        'emotion': emotion_info['emotion'],
+        'animation': emotion_info['animation'],
+        'animation_confidence': emotion_info['confidence'],
+        'hexagram': hexagram,
+        'intent': state_changes.get('primary_intent', ''),
+        'confidence': state_changes.get('thinking_confidence', 0.5),
+        'philosophy': state_changes.get('philosophy_contributions', {}),
+        'cycle': state_changes.get('cycle', 0),
+        'timestamp': datetime.now().isoformat(),
+        'user_id': user_id,
+    })
+
+
 # ==================== OpenClaw Webhook ====================
 
 @app.route('/webhook/openclaw', methods=['POST'])
@@ -629,8 +783,10 @@ if __name__ == '__main__':
     print("🛡️  东方智慧智能体 API 服务 - 安全增强版")
     print("=" * 60)
     print(f"📍 监听地址: http://{_host}:{_port}")
+    print(f"📍 桌面对话: http://{_host}:{_port}/api/dialog  (小缘用这个)")
     print(f"📍 OpenClaw Webhook: http://{_host}:{_port}/webhook/openclaw")
     print(f"📍 Hermes接口: http://{_host}:{_port}/hermes/commercial")
+    print(f"📍 健康检查: http://{_host}:{_port}/health")
     print("=" * 60)
     print("🔒 安全特性:")
     print(f"   - IP白名单: {'启用' if SECURITY_CONFIG['enable_ip_whitelist'] else '禁用'}")
