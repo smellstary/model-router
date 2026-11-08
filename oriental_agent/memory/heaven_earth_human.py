@@ -58,6 +58,7 @@ class EarthLayer:
         self.environmental_memories: Dict[str, MemoryNode] = {}
         self.stimulus_patterns: Dict[str, int] = {}
         self.interaction_history: List[Dict] = []
+        self._max_history = 500
         self.adaptation_models: Dict[str, float] = {}
     
     def store_interaction(
@@ -74,7 +75,10 @@ class EarthLayer:
             'response': response,
             'timestamp': datetime.now()
         })
-        
+        # 容量上限保护
+        if len(self.interaction_history) > self._max_history:
+            self.interaction_history = self.interaction_history[-self._max_history:]
+
         if stimulus_type not in self.stimulus_patterns:
             self.stimulus_patterns[stimulus_type] = 0
         self.stimulus_patterns[stimulus_type] += 1
@@ -206,6 +210,13 @@ class ThreeLayerMemoryArchitecture:
             self.human_layer.experience_memories[memory.memory_id] = memory
         
         self._establish_cross_layer_associations(memory)
+
+    def discard(self, memory_id: str) -> None:
+        """从三层索引里去掉一条记忆。"""
+        self.heaven_layer.macro_memories.pop(memory_id, None)
+        self.earth_layer.environmental_memories.pop(memory_id, None)
+        self.human_layer.experience_memories.pop(memory_id, None)
+        self.cross_layer_associations.pop(memory_id, None)
     
     def retrieve(
         self,
@@ -268,24 +279,11 @@ class ThreeLayerMemoryArchitecture:
             self.cross_layer_associations[memory.memory_id] = associations
     
     def _has_semantic_relation(self, content1: any, content2: any) -> bool:
-        """判断语义关联性 — 支持中文分词（jieba）"""
+        """判断语义关联性"""
         if isinstance(content1, str) and isinstance(content2, str):
-            words1 = self._tokenize(content1)
-            words2 = self._tokenize(content2)
-            common_words = words1 & words2
-            # 过滤单字停用词
-            meaningful = {w for w in common_words if len(w) > 1}
-            return len(meaningful) >= 2
+            common_words = set(content1.split()) & set(content2.split())
+            return len(common_words) > 2
         return content1 == content2
-
-    @staticmethod
-    def _tokenize(text: str) -> set:
-        """中文分词，优先 jieba，fallback bi-gram"""
-        try:
-            import jieba
-            return set(jieba.lcut(text))
-        except ImportError:
-            return {text[i:i+2] for i in range(len(text) - 1)} | set(text)
     
     def get_heaven_insights(self, context: str) -> List[str]:
         """从天道层获取洞见"""

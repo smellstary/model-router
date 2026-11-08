@@ -58,6 +58,42 @@ class DialecticalThinkingSystem:
         }
         self.transformation_history: List[Dict] = []
         self.negation_history: List[Dict] = []
+
+        # 阴的关键词：被动、收敛、困难、防守、内在、负面情绪
+        self._yin_keywords: Dict[str, List[str]] = {
+            'internal': ['内部', '内在', '本质', '根', '本', '内心', '内在'],
+            'passive': ['被动', '静', '柔', '退', '守', '等待', '观望'],
+            'receptive': ['接受', '包容', '承载', '沉', '沉潜'],
+            'cold': ['暗', '寒', '阴', '低调'],
+            'feminine': ['柔', '静', '敛', '收'],
+            # 用户高频负面词汇
+            'difficulty': ['难', '难办', '困难', '棘手', '搞不定', '没头绪'],
+            'stress': ['压力', '焦虑', '抑郁', '紧张', '负担', '累', '疲惫'],
+            'loss': ['亏', '亏了', '赔', '失败', '亏', '输', '倒'],
+            'risk': ['风险', '危险', '危机', '出问题', '出事'],
+            'waiting': ['等待', '等等', '看看', '再想想'],
+        }
+
+        # 阳的关键词：主动、扩张、机会、进攻、外在、正面情绪
+        self._yang_keywords: Dict[str, List[str]] = {
+            'external': ['外部', '外在', '表象', '末', '标', '市场', '外部环境'],
+            'active': ['主动', '动', '刚', '进', '攻', '进取', '行动'],
+            'expansive': ['扩张', '发扬', '显明', '上升', '壮大', '增长'],
+            'hot': ['热', '明', '阳', '旺', '火'],
+            'masculine': ['刚', '动', '散', '发'],
+            # 用户高频正面/积极词汇
+            'opportunity': ['机会', '商机', '创业', '项目', '好项目', '市场机会', '风口'],
+            'investment': ['投资', '融资', '回报', '收益', '赚钱', '发财', '盈利'],
+            'growth': ['增长', '扩张', '做大', '壮大', '突破', '发展'],
+            'competition': ['竞争', '对手', '格局', '脱颖而出', '打败'],
+            'prediction': ['预测', '成功', '成吗', '能不能成', '会成吗', '吉凶'],
+        }
+
+        # 中性关键词：表示平衡、过渡、思考
+        self._neutral_keywords: List[str] = [
+            '平衡', '中间', '过渡', '思考', '两难', '矛盾', '权衡',
+            '怎么办', '如何', '应该', '该不该', '建议', '看法', '分析',
+        ]
     
     def analyze_dialectically(
         self,
@@ -96,60 +132,48 @@ class DialecticalThinkingSystem:
         context: Optional[Dict[str, Any]]
     ) -> List[str]:
         """识别阴的属性"""
-        yin_characteristics = []
-        
-        subject_str = str(subject).lower()
-        
-        yin_keywords = {
-            'internal': ['内部', '内在', '本质', '根', '本'],
-            'passive': ['被动', '静', '柔', '退', '守'],
-            'receptive': ['接受', '包容', '承载', '沉'],
-            'cold': ['暗', '暗', '寒', '阴'],
-            'feminine': ['柔', '静', '敛', '收']
-        }
-        
-        for category, keywords in yin_keywords.items():
-            if any(kw in subject_str for kw in keywords):
-                yin_characteristics.append(category)
-        
+        yin_characteristics: List[str] = []
+
+        subject_str = str(subject)
+
+        for category, keywords in self._yin_keywords.items():
+            for kw in keywords:
+                if kw in subject_str:
+                    yin_characteristics.append(category)
+                    break  # 一个分类命中一次即可
+
         if context:
             if context.get('state') in ['passive', 'resting', 'waiting']:
                 yin_characteristics.append('state_passive')
             if context.get('energy_level', 1.0) < 0.5:
                 yin_characteristics.append('low_energy')
-        
+
         return yin_characteristics
-    
+
     def _identify_yang_aspects(
         self,
         subject: Any,
         context: Optional[Dict[str, Any]]
     ) -> List[str]:
-        """识别阳的属笥"""
-        yang_characteristics = []
-        
-        subject_str = str(subject).lower()
-        
-        yang_keywords = {
-            'external': ['外部', '外在', '表象', '末', '标'],
-            'active': ['主动', '动', '刚', '进', '攻'],
-            'expansive': ['扩张', '发扬', '显明', '上升'],
-            'hot': ['热', '明', '阳', '旺'],
-            'masculine': ['刚', '动', '散', '发']
-        }
-        
-        for category, keywords in yang_keywords.items():
-            if any(kw in subject_str for kw in keywords):
-                yang_characteristics.append(category)
-        
+        """识别阳的属性"""
+        yang_characteristics: List[str] = []
+
+        subject_str = str(subject)
+
+        for category, keywords in self._yang_keywords.items():
+            for kw in keywords:
+                if kw in subject_str:
+                    yang_characteristics.append(category)
+                    break
+
         if context:
             if context.get('state') in ['active', 'moving', 'pushing']:
                 yang_characteristics.append('state_active')
             if context.get('energy_level', 1.0) > 0.5:
                 yang_characteristics.append('high_energy')
-        
+
         return yang_characteristics
-    
+
     def _identify_neutral_aspects(
         self,
         subject: Any,
@@ -157,13 +181,19 @@ class DialecticalThinkingSystem:
     ) -> List[str]:
         """识别中性的属性"""
         neutral = []
-        
+
+        subject_str = str(subject)
+        for kw in self._neutral_keywords:
+            if kw in subject_str:
+                neutral.append('question_reflective')
+                break
+
         if context:
             if 'balance' in context:
                 neutral.append('balance_oriented')
             if 'transition' in context:
                 neutral.append('in_transition')
-        
+
         return neutral
     
     def _calculate_tension(
@@ -356,15 +386,47 @@ class DialecticalThinkingSystem:
         self,
         analysis: DialecticalAnalysis
     ) -> str:
-        """确定自然的行动方式"""
-        if analysis.transformation_type == TransformationType.YANG_TO_YIN:
-            return "顺应收敛趋势，减少干预"
-        elif analysis.transformation_type == TransformationType.YIN_TO_YANG:
-            return "顺应生发趋势，适时引导"
-        elif analysis.transformation_type == TransformationType.BALANCED:
-            return "保持平衡，顺其自然"
-        else:
-            return "寻求调和，化解张力"
+        """确定自然的行动方式 - 根据用户实际问题动态组织"""
+        yin, yang = analysis.yin_aspects, analysis.yang_aspects
+
+        # 如果完全没有任何 aspect，说明用户问题太泛
+        if not yin and not yang:
+            return "问题较为笼统，建议具体化后再做判断"
+
+        # 根据命中的 aspect 类别组织建议
+        parts: List[str] = []
+        has_opportunity = 'opportunity' in yang or 'investment' in yang
+        has_stress = 'stress' in yin or 'difficulty' in yin
+        has_risk = 'risk' in yin or 'loss' in yin
+        has_waiting = 'waiting' in yin or 'passive' in yin
+
+        if has_opportunity and has_risk:
+            parts.append("机会与风险并存，宜审慎评估后再行动")
+        elif has_opportunity and has_stress:
+            parts.append("虽有压力但机会显现，压力即转化的契机")
+        elif has_opportunity:
+            parts.append("机会窗口开启，顺势而为可有所作为")
+
+        if has_stress and has_waiting:
+            parts.append("当前宜沉静反省，待心气平复再做决定")
+        elif has_stress:
+            parts.append("内心张力较大，先求稳再求进")
+
+        if has_risk and not has_opportunity:
+            parts.append("风险信号明显，宜防宜守不宜攻")
+
+        # 叠加转化类型的建议
+        trans_map = {
+            TransformationType.YANG_TO_YIN: "趋势由盛入衰，应收敛锋芒、保存实力",
+            TransformationType.YIN_TO_YANG: "否极泰来，沉寂中孕育新生，可适时启动",
+            TransformationType.BALANCED: "阴阳大致平衡，维持节奏、不宜剧变",
+            TransformationType.CONFLICTING: "矛盾双方张力明显，需调和而非对抗",
+        }
+        trans_advice = trans_map.get(analysis.transformation_type)
+        if trans_advice and trans_advice not in parts:
+            parts.append(trans_advice)
+
+        return "；".join(parts[:3])
     
     def _predict_natural_outcome(
         self,

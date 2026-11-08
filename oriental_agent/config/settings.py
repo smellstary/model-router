@@ -41,9 +41,11 @@ class Config:
                 "log_level": "INFO"
             },
             "memory": {
-                "max_memories": 10000,
+                "max_memories": 1000,
+                "retrieval_pool": 200,
                 "weight_evolution_interval": 3600,
                 "strength_decay_rate": 0.001,
+                "wuxing_decay_rate": 0.001,
                 "default_layer": "人道",
                 "wuxing_weights": {
                     "木": 1.0,
