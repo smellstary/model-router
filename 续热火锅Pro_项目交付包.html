@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>续热火锅 Pro · 分体式 · 项目交付包</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 50%, #fff0f0 100%);
+    color: #333;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+  
+  /* Header */
+  .hero {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52, #ff8a5c);
+    color: white;
+    border-radius: 24px;
+    padding: 48px 40px;
+    margin-bottom: 40px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(238,90,82,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+    animation: float 8s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100% { transform: translate(0,0) } 50% { transform: translate(2%,-2%) } }
+  .hero h1 {
+    font-size: 42px; font-weight: 800; margin-bottom: 12px;
+    letter-spacing: -1px; position: relative;
+  }
+  .hero .subtitle {
+    font-size: 18px; opacity: 0.95; position: relative;
+  }
+  .hero .badge {
+    display: inline-block; background: rgba(255,255,255,0.2);
+    padding: 6px 16px; border-radius: 20px; margin-top: 16px;
+    font-size: 14px; backdrop-filter: blur(10px); position: relative;
+  }
+  
+  /* Section */
+  .section {
+    background: white; border-radius: 20px; padding: 36px 32px;
+    margin-bottom: 28px; box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+  .section h2 {
+    font-size: 24px; font-weight: 700; margin-bottom: 24px;
+    color: #ee5a52; padding-bottom: 12px; border-bottom: 3px solid #ffe8e8;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section h3 {
+    font-size: 18px; font-weight: 600; margin: 24px 0 12px;
+    color: #444;
+  }
+  
+  /* Parameter Table */
+  table {
+    width: 100%; border-collapse: collapse; margin: 16px 0;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 12px 16px; text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  th {
+    background: #fff5f5; font-weight: 600; color: #c44;
+  }
+  tr:hover td { background: #fafafa; }
+  .highlight-row td { background: #fff9e6; }
+  .danger-row td { background: #ffeaea; }
+  .muted { color: #888; font-size: 12px; }
+  
+  /* File Card */
+  .file-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px; margin: 16px 0;
+  }
+  .file-card {
+    background: linear-gradient(135deg, #fff5f5, #fff);
+    border: 2px solid #ffe8e8; border-radius: 16px;
+    padding: 20px; transition: all 0.3s; cursor: pointer;
+  }
+  .file-card:hover {
+    transform: translateY(-4px); box-shadow: 0 12px 30px rgba(238,90,82,0.15);
+    border-color: #ffc0c0;
+  }
+  .file-card .icon { font-size: 40px; margin-bottom: 8px; }
+  .file-card .name { font-weight: 700; font-size: 16px; color: #c44; }
+  .file-card .desc { font-size: 13px; color: #666; margin-top: 4px; }
+  .file-card .size { font-size: 12px; color: #999; margin-top: 8px; }
+  
+  /* Print Params */
+  .param-block {
+    background: #fafafa; border-left: 4px solid #ee5a52;
+    padding: 16px 20px; border-radius: 0 12px 12px 0;
+    margin: 16px 0; font-family: 'SF Mono', Consolas, monospace;
+    font-size: 13px; line-height: 2;
+  }
+  .param-block .label {
+    display: inline-block; width: 110px; color: #c44; font-weight: 600;
+  }
+  .param-block .val { color: #333; }
+  
+  /* Step Card */
+  .steps { counter-reset: step; margin: 16px 0; }
+  .step-card {
+    background: white; border: 1px solid #eee; border-radius: 12px;
+    padding: 16px 20px 16px 60px; margin-bottom: 12px;
+    position: relative; transition: all 0.2s;
+  }
+  .step-card:hover { border-color: #ffc0c0; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+  .step-card::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 16px; top: 16px;
+    width: 32px; height: 32px; background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+  }
+  .step-card .title { font-weight: 600; font-size: 15px; color: #333; }
+  .step-card .detail { font-size: 13px; color: #666; margin-top: 4px; }
+  
+  /* Test Checklist */
+  .checklist { margin: 16px 0; }
+  .checklist-item {
+    display: flex; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid #f5f5f5; font-size: 14px;
+  }
+  .checklist-item .num {
+    background: #ff6b6b; color: white; border-radius: 50%;
+    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .checklist-item .text { color: #444; flex: 1; }
+  .checklist-item .pass {
+    background: #e8f5e8; color: #2a7; padding: 2px 8px; border-radius: 10px;
+    font-size: 12px; white-space: nowrap;
+  }
+  
+  /* Assembly Diagram */
+  .assembly {
+    background: #1a1a2e; border-radius: 16px; padding: 32px;
+    margin: 16px 0; font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12px; color: #eee; overflow-x: auto;
+    white-space: pre; line-height: 1.6;
+  }
+  .assembly .red { color: #ff6b6b; font-weight: bold; }
+  .assembly .green { color: #6bff8e; font-weight: bold; }
+  .assembly .yellow { color: #ffd46b; }
+  .assembly .blue { color: #6bb8ff; }
+  
+  /* Image Gallery */
+  .gallery {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px; margin: 16px 0;
+  }
+  .gallery img {
+    width: 100%; border-radius: 12px; border: 2px solid #eee;
+    transition: transform 0.3s;
+  }
+  .gallery img:hover { transform: scale(1.02); }
+  .gallery .cap {
+    text-align: center; font-size: 13px; color: #666; margin-top: 8px;
+  }
+  
+  /* Highlight Box */
+  .highlight {
+    background: linear-gradient(135deg, #fff9e6, #fff3cd);
+    border: 1px solid #ffd966; border-radius: 12px;
+    padding: 16px 20px; margin: 16px 0; font-size: 14px;
+  }
+  .danger {
+    background: linear-gradient(135deg, #ffeaea, #ffd6d6);
+    border: 1px solid #ff9999; border-radius: 12px;
+    padding: 16px 20px; margin: 16px 0; font-size: 14px;
+  }
+  .tip {
+    background: linear-gradient(135deg, #e6f4ff, #d1ecff);
+    border: 1px solid #99c2ff; border-radius: 12px;
+    padding: 16px 20px; margin: 16px 0; font-size: 14px;
+  }
+  
+  /* TOC */
+  .toc {
+    background: white; border-radius: 16px; padding: 24px 32px;
+    margin-bottom: 28px; box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+  .toc h3 { font-size: 16px; color: #c44; margin-bottom: 12px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 4px 0; font-size: 14px; }
+  .toc a { color: #444; text-decoration: none; }
+  .toc a:hover { color: #ee5a52; }
+  
+  /* Footer */
+  .footer {
+    text-align: center; padding: 32px; color: #999; font-size: 13px;
+    margin-top: 40px;
+  }
+  
+  /* Download Buttons */
+  .dl-btn {
+    display: inline-block; background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white; padding: 12px 28px; border-radius: 25px;
+    text-decoration: none; font-weight: 600; font-size: 14px;
+    margin: 8px 8px 8px 0; transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(238,90,82,0.3);
+  }
+  .dl-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(238,90,82,0.4); }
+  .dl-btn.outline {
+    background: white; color: #ee5a52; border: 2px solid #ee5a52;
+    box-shadow: none;
+  }
+  .dl-btn.outline:hover { background: #fff5f5; }
+  
+  @media print { .hero, .toc, .footer { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ==================== HERO ==================== -->
+<div class="hero">
+  <h1>🍲 续热火锅 Pro</h1>
+  <div class="subtitle">分体式旋钮旋扣 · 3D打印原型交付包</div>
+  <div class="badge">📦 2个STL零件 · 48小时出样 · 5秒换包续热</div>
+</div>
+
+<!-- ==================== TOC ==================== -->
+<div class="toc">
+  <h3>📑 项目目录</h3>
+  <ol>
+    <li><a href="#overview">📋 项目概述</a></li>
+    <li><a href="#assembly">🔩 结构原理</a></li>
+    <li><a href="#parameters">📐 精确参数表</a></li>
+    <li><a href="#files">📁 STL文件清单</a></li>
+    <li><a href="#print">🖨️ 打印参数（直接复制）</a></li>
+    <li><a href="#postprocess">🔧 后处理步骤</a></li>
+    <li><a href="#assembly-steps">✅ 组装使用指南</a></li>
+    <li><a href="#test">🧪 验证测试清单</a></li>
+    <li><a href="#images">🎨 设计效果图</a></li>
+    <li><a href="#cost">💰 成本与时间</a></li>
+  </ol>
+</div>
+
+<!-- ==================== OVERVIEW ==================== -->
+<div class="section" id="overview">
+  <h2>📋 项目概述</h2>
+  <p>
+    <strong>续热火锅 Pro</strong> 是一套基于你现有304自热饭盒的<strong>分体式续热改造方案</strong>。
+    通过旋钮旋扣结构把火锅分成<strong>上半（火锅本体）</strong>和<strong>下半（快拆加热仓）</strong>，
+    一拧就拆、一拧就合，换自热包速度从30秒降到<strong>≤5秒</strong>，
+    完美解决自热包只能用15分钟的痛点——火锅再也不会断火！
+  </p>
+  
+  <h3>🎯 核心指标</h3>
+  <table>
+    <tr><th>指标</th><th>数值</th></tr>
+    <tr><td>可用容量</td><td>1500 ml（复用原304内胆）</td></tr>
+    <tr><td>自热包规格</td><td>≤ 80g（市售标准通用）</td></tr>
+    <tr class="highlight-row"><td><strong>加水比例</strong></td><td><strong>自热包 : 水 ≈ 1 : 3 ~ 3.75</strong></td></tr>
+    <tr><td>建议加水量</td><td>250ml 标准 / 150ml 温和 / MAX 300ml 禁止超</td></tr>
+    <tr><td>换包速度</td><td><strong>≤ 5秒</strong>（旋钮90°拆卸→换包→旋钮90°锁止）</td></tr>
+    <tr><td>单次加热续航</td><td>约15分钟（80g包+250ml水）</td></tr>
+    <tr><td>整套续航</td><td>≥3小时（按需配包）</td></tr>
+    <tr><td>加热方式</td><td>360°蒸汽包围 + 内胆底部支撑台阶导热</td></tr>
+    <tr><td>旋钮旋扣</td><td>2对凸缘/凹槽 · 180°对称 · 90°旋转锁止</td></tr>
+    <tr><td>泄压安全</td><td>加热仓4×φ5mm泄压孔 + 复用原饭盒心形排气孔</td></tr>
+    <tr><td>外壳表面温度</td><td>≤ 45°C（安全触摸）</td></tr>
+  </table>
+  
+  <h3>🔑 设计理念</h3>
+  <ul style="padding-left:20px; line-height:2;">
+    <li><strong>零破坏原则</strong>：不切原饭盒，重新打印完整的分体外壳，原内胆100%复用</li>
+    <li><strong>旋钮旋扣</strong>：像拧保温杯底座一样简单，90°=1/4圈就锁止，对盲操作友好</li>
+    <li><strong>内胆留在上面不动</strong>：换包时不用把内胆拿出来，水不会洒、温度不降</li>
+    <li><strong>后处理优于建模</strong>：泄压孔、加水口不做在STL里，打印后用钻/刀切反而更精准</li>
+    <li><strong>环氧树脂浸渍防漏水</strong>：FDM打印的层纹缝隙用环氧树脂填满，成本5元</li>
+  </ul>
+</div>
+
+<!-- ==================== ASSEMBLY ==================== -->
+<div class="section" id="assembly">
+  <h2>🔩 结构原理</h2>
+  
+  <h3>分体式结构爆炸图</h3>
+  <div class="assembly">
+                    ┌─────────────────┐
+                    │  🔴 密封盖      │ ← 复用原饭盒（心形排气孔）
+                    └────────┬────────┘
+                             │
+        ┌────────────────────┴────────────────────┐
+        │           🔴 上半火锅外壳                 │
+        │  ┌─────────────────────────────────┐    │
+        │  │  304 不锈钢内胆 ← 原饭盒里拿出来  │    │ ← 🟢 复用（φ145×70mm）
+        │  │       翻边搭在内部台阶上          │    │
+        │  └─────────────────────────────────┘    │
+        │                                          │
+        │     ┌───────── 旋钮凸缘（2对）────────┐   │
+        │     │    顺时针 90° = 咔嗒锁止         │   │
+        └─────┴─────────────────────────────────┴───┘
+                             │
+              ╲   ╱  ← 旋扣连接面（φ2mm硅胶圈密封）
+                    ┘
+                             │
+        ┌────────────────────┴────────────────────┐
+        │           🟢 下半快拆加热仓                 │
+        │  ┌─────────────────────────────────┐    │
+        │  │  80g 自热包 + 250ml 水            │    │
+        │  │  ├─ 内胆底部支撑台阶（托住内胆）   │    │
+        │  │  ├─ 侧面加水口（距底18mm）         │    │
+        │  │  └─ 4×φ5mm 泄压孔（距顶6mm）       │    │
+        │  └─────────────────────────────────┘    │
+        └──────────────────────────────────────────┘
+  </div>
+  
+  <h3>旋钮旋扣原理</h3>
+  <div class="tip">
+    <strong>操作方法：</strong>把上下两个零件的旋钮凸缘/凹槽对准（约0°位置）→ 向内推 →
+    <strong>顺时针拧 90°</strong>（1/4圈）→ 听到"咔嗒"声 = 锁止完成！<br>
+    拆卸：<strong>逆时针拧 90°</strong> → 分离 → 换包 → 重复。
+  </div>
+  
+  <h3>为什么选2对凸缘/凹槽 + 90°旋转</h3>
+  <table>
+    <tr><th>方案</th><th>优点</th><th>缺点</th><th>采用？</th></tr>
+    <tr><td>3对凸缘 + 30°旋转</td><td>锁止力大</td><td>需要精确对准3个点，对盲操作不友好</td><td>❌</td></tr>
+    <tr class="highlight-row"><td><strong>2对凸缘 + 90°旋转</strong></td><td><strong>对盲友好、对得准、1/4圈快</strong></td><td>锁止力稍小（但足够）</td><td><strong>✅ 采用</strong></td></tr>
+    <tr><td>4对凸缘 + 45°旋转</td><td>锁止力大</td><td>对准困难</td><td>❌</td></tr>
+  </table>
+</div>
+
+<!-- ==================== PARAMETERS ==================== -->
+<div class="section" id="parameters">
+  <h2>📐 精确参数表（基于实物φ145mm内胆）</h2>
+  
+  <h3>🔴 零件A：上半火锅外壳</h3>
+  <table>
+    <tr><th>部位</th><th>参数</th><th>数值</th><th>说明</th></tr>
+    <tr><td rowspan="3">顶部</td><td>顶部外径</td><td>φ170mm</td><td>含5mm宽翻边（拿取手感）</td></tr>
+    <tr><td>顶部内径</td><td>φ146mm</td><td>内胆翻边放入，留1mm间隙</td></tr>
+    <tr><td>内胆支撑台阶内径</td><td>φ140mm</td><td>翻边搭在台阶上，不会掉</td></tr>
+    <tr><td>中部</td><td>上半总高度</td><td>100mm</td><td>内胆75mm+蒸汽空间25mm</td></tr>
+    <tr><td rowspan="3">底部旋钮段</td><td>底部外径</td><td>φ156mm</td><td>旋钮凸缘段</td></tr>
+    <tr><td>旋钮凸缘</td><td>2对×宽8×长15×高2mm</td><td>180°对称，突出外壁</td></tr>
+    <tr><td>密封槽</td><td>φ152mm内径×宽2×深2mm</td><td>装φ2mm硅胶圈</td></tr>
+    <tr><td>壁厚</td><td>侧壁3mm / 底部3mm</td><td>-</td></tr>
+    <tr><td>填充</td><td>15%立方体网格 + 3圈外壁</td><td>轻量化+隔热</td></tr>
+  </table>
+  
+  <h3>🟢 零件B：下半快拆加热仓</h3>
+  <table>
+    <tr><th>部位</th><th>参数</th><th>数值</th><th>说明</th></tr>
+    <tr><td rowspan="3">顶部旋钮段</td><td>顶部内径</td><td>φ156mm</td><td>正好套住上半外壳底部</td></tr>
+    <tr><td>旋钮凹槽</td><td>2对×宽8×长15×深2mm</td><td>180°对称，向内凹陷</td></tr>
+    <tr><td>内胆支撑台阶内径</td><td>φ146mm</td><td>底部托住内胆</td></tr>
+    <tr><td rowspan="3">内部</td><td>内部深度</td><td>35mm</td><td>装80g包+300ml水</td></tr>
+    <tr><td>台阶高度</td><td>2mm</td><td>底部支撑</td></tr>
+    <tr><td>容积</td><td>≈ 480 cm³</td><td>含膨胀余量</td></tr>
+    <tr><td rowspan="2">底部</td><td>底部外径</td><td>φ158mm</td><td>略大，放置稳定</td></tr>
+    <tr><td>底壁厚</td><td>4mm</td><td>比侧壁厚，耐反应压力</td></tr>
+    <tr><td rowspan="3">后处理切口</td><td>加水口</td><td>18×12mm矩形</td><td>距底18mm，打印后美工刀切</td></tr>
+    <tr><td>泄压孔</td><td>4×φ5mm</td><td>90°均匀，距顶6mm，打印后电钻钻</td></tr>
+    <tr><td>水位刻度</td><td>内壁纹理</td><td>150ml(14mm) / 250ml(24mm) / MAX300ml(29mm)</td><td>打印后用记号笔标</td></tr>
+    <tr><td>壁厚</td><td>侧壁3mm / 底部4mm</td><td>-</td></tr>
+    <tr><td>填充</td><td>100%固体填充</td><td>装水不能漏！</td></tr>
+  </table>
+  
+  <div class="danger">
+    ⚠️ <strong>加水比例红线：</strong>MAX 300ml 绝对不能超！自热包剧烈反应，
+    水太多压力太大可能喷溅！80g包建议加250ml（3:1比例），不要凭感觉加水！
+  </div>
+</div>
+
+<!-- ==================== FILES ==================== -->
+<div class="section" id="files">
+  <h2>📁 STL 文件清单</h2>
+  
+  <div class="file-grid">
+    <div class="file-card">
+      <div class="icon">🔴</div>
+      <div class="name">upper_shell.stl</div>
+      <div class="desc">上半火锅外壳 · 放原304内胆</div>
+      <div class="size">62 KB · 1264面 · 尺寸 170×186×103mm</div>
+      <a class="dl-btn" href="file:///workspace/upper_shell.stl">⬇️ 下载</a>
+    </div>
+    <div class="file-card">
+      <div class="icon">🟢</div>
+      <div class="name">lower_heat_chamber.stl</div>
+      <div class="desc">下半快拆加热仓 · 旋扣+加水+泄压</div>
+      <div class="size">47 KB · 944面 · 尺寸 158×158×43mm</div>
+      <a class="dl-btn" href="file:///workspace/lower_heat_chamber.stl">⬇️ 下载</a>
+    </div>
+    <div class="file-card">
+      <div class="icon">🐍</div>
+      <div class="name">generate_stl.py</div>
+      <div class="desc">STL生成源代码（可调参数重新生成）</div>
+      <div class="size">Python脚本 · 可修改参数重跑</div>
+      <a class="dl-btn outline" href="file:///workspace/generate_stl.py">查看源码</a>
+    </div>
+  </div>
+  
+  <div class="tip">
+    💡 <strong>淘宝代打操作：</strong>两个STL文件直接发给淘宝"食品级PP 3D打印代打"卖家，
+    告诉他「食品级PP + 加热仓要环氧树脂后处理防漏水 + 旋钮接触面打磨」，
+    48小时收到样片，总价约130元。
+  </div>
+</div>
+
+<!-- ==================== PRINT ==================== -->
+<div class="section" id="print">
+  <h2>🖨️ 打印参数（直接复制到切片软件）</h2>
+  
+  <h3>🔴 upper_shell — 上半火锅外壳</h3>
+  <div class="param-block">
+<span class="label">材料</span><span class="val">食品级PP（eSUN PP-Food / Bambu PP Basic Food Safe）</span>
+<span class="label">层高</span><span class="val">0.2mm（外壳不需高精度，省时间）</span>
+<span class="label">填充率</span><span class="val">15% 立方体网格 + 3圈外壁</span>
+<span class="label">壁厚</span><span class="val">3圈 ≈ 3mm</span>
+<span class="label">喷头温度</span><span class="val">230°C</span>
+<span class="label">热床温度</span><span class="val">80°C</span>
+<span class="label">冷却风扇</span><span class="val">下半部关闭（PP慢冷结晶好），上半部开40%</span>
+<span class="label">摆放方向</span><span class="val"><strong>倒扣打印</strong>（开口朝下，旋钮凸缘在顶部）</span>
+<span class="label">支撑</span><span class="val">仅底部1mm自动支撑</span>
+<span class="label">预估时间</span><span class="val">~2.5 小时</span>
+<span class="label">预估耗材</span><span class="val">~80g ≈ 23 元</span>
+  </div>
+  
+  <h3>🟢 lower_heat_chamber — 下半快拆加热仓</h3>
+  <div class="param-block">
+<span class="label">材料</span><span class="val">食品级PP（同上）</span>
+<span class="label">层高</span><span class="val"><strong>0.1mm</strong>（旋钮凹槽+旋扣精度关键！）</span>
+<span class="label">填充率</span><span class="val"><strong>100% 固体填充</strong>（装水不能漏！）</span>
+<span class="label">壁厚</span><span class="val">3圈 ≈ 3mm</span>
+<span class="label">喷头温度</span><span class="val">230°C</span>
+<span class="label">热床温度</span><span class="val">80°C</span>
+<span class="label">冷却风扇</span><span class="val">下半部关闭（PP慢冷结晶好），上半部开40%</span>
+<span class="label">摆放方向</span><span class="val"><strong>倒扣打印</strong>（开口朝下，旋钮凹槽在顶部）</span>
+<span class="label">支撑</span><span class="val">旋钮凹槽内壁手动加 2×2×3mm 小支撑×2</span>
+<span class="label">预估时间</span><span class="val">~2 小时</span>
+<span class="label">预估耗材</span><span class="val">~70g ≈ 20 元</span>
+  </div>
+  
+  <div class="danger">
+    ⚠️ <strong>绝对不要用普通PLA！</strong> PLA 60°C就软化，自热包反应温度100°C会直接变形！
+    必须用 <strong>食品级PP / PETG / ABS / PA12</strong> 中耐温≥100°C的材料。
+  </div>
+</div>
+
+<!-- ==================== POSTPROCESS ==================== -->
+<div class="section" id="postprocess">
+  <h2>🔧 后处理步骤（30分钟搞定）</h2>
+  
+  <div class="steps">
+    <div class="step-card">
+      <div class="title">去支撑</div>
+      <div class="detail">用镊子+斜口钳把所有支撑拆掉。旋钮凹槽里的支撑最后用φ3mm钻头转掉。</div>
+    </div>
+    <div class="step-card">
+      <div class="title">旋钮旋扣打磨（最关键！）</div>
+      <div class="detail">1200目砂纸打磨凸缘/凹槽的接触面。两个零件试着旋扣，拧90°顺畅不卡 = 合格。卡就继续磨。</div>
+    </div>
+    <div class="step-card">
+      <div class="title">加热仓切加水口</div>
+      <div class="detail">美工刀+钢尺，在加热仓侧壁距底<strong>18mm</strong>处切一个<strong>18×12mm</strong>的矩形口（用记号笔画线再切）。</div>
+    </div>
+    <div class="step-card">
+      <div class="title">加热仓钻泄压孔</div>
+      <div class="detail">φ5mm电钻，在加热仓侧壁<strong>距顶6mm</strong>处钻4个孔（90°均匀分布）。没有电钻用烧红的铁丝烫。</div>
+    </div>
+    <div class="step-card">
+      <div class="title">环氧树脂浸渍（防漏水！）</div>
+      <div class="detail">E-44胶+固化剂按1:3调。把加热仓泡进去10分钟让树脂渗进层缝→拿出来<strong>立刻擦干所有表面</strong>→60°C烤箱烤2h（或吹风机吹20min）→固化后1000目砂纸重磨密封面。</div>
+    </div>
+    <div class="step-card">
+      <div class="title">装硅胶密封圈</div>
+      <div class="detail">淘宝搜"φ2mm硅胶绳"（1元/米），剪一段套在旋钮旋扣面的密封槽里。多余剪掉，接头处压平。</div>
+    </div>
+    <div class="step-card">
+      <div class="title">标水位刻度</div>
+      <div class="detail">用记号笔在加热仓内壁标水位线：距底14mm处画绿线"150ml温和"、24mm处画红线"250ml标准"、29mm处画红警示线"MAX300ml禁止超"。</div>
+    </div>
+    <div class="step-card">
+      <div class="title">密封测试（必做！）</div>
+      <div class="detail">加热仓装300ml水→晃10秒→旋进上半外壳→整体晃10秒。<strong>任何地方漏水都要重涂环氧树脂</strong>！</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ASSEMBLY ==================== -->
+<div class="section" id="assembly-steps">
+  <h2>✅ 组装 & 使用指南</h2>
+  
+  <h3>首次组装（5分钟）</h3>
+  <div class="steps">
+    <div class="step-card">
+      <div class="title">放入内胆</div>
+      <div class="detail">把原饭盒的304内胆（翻边朝上）放进上半外壳，翻边搭在内部台阶上 → 稳不晃 = 正确。</div>
+    </div>
+    <div class="step-card">
+      <div class="title">对准旋钮</div>
+      <div class="detail">下半加热仓的旋钮凹槽对准上半外壳底部的凸缘（约0°位置），把两个零件压紧。</div>
+    </div>
+    <div class="step-card">
+      <div class="title">锁止</div>
+      <div class="detail">顺时针拧加热仓 <strong>90°（1/4圈）</strong> → 听到"咔嗒"声 = 锁止完成！</div>
+    </div>
+    <div class="step-card">
+      <div class="title">开始加热</div>
+      <div class="detail">旋回加热仓→加水口翻盖翻开→放80g自热包→倒250ml水到250ml刻度线→盖回翻盖→放密封盖→等10分钟沸腾！</div>
+    </div>
+  </div>
+  
+  <h3>续热换包（≤5秒！）</h3>
+  <div class="highlight" style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px;">
+    <span style="font-size:13px;">逆时针90° → 拿下加热仓 → 倒旧包 → 装新包加水 → 顺时针90°锁止</span>
+    <span style="font-size:20px; font-weight:800; color:#c44; background:white; padding:8px 16px; border-radius:12px;">⏱ ≤ 5秒</span>
+  </div>
+  
+  <h3>两小时火锅方案（9-10包）</h3>
+  <table>
+    <tr><th>阶段</th><th>时长</th><th>自热包</th><th>加水量/包</th></tr>
+    <tr><td>烧水沸腾</td><td>25分钟</td><td>2包</td><td>250ml</td></tr>
+    <tr><td>火锅维持</td><td>90分钟</td><td>6包</td><td>250ml</td></tr>
+    <tr><td>尾声保温</td><td>20分钟</td><td>1-2包</td><td>150ml（温和持久）</td></tr>
+    <tr class="highlight-row"><td><strong>合计</strong></td><td><strong>~135分钟</strong></td><td><strong>9-10包</strong></td><td><strong>总自热包720-800g</strong></td></tr>
+  </table>
+</div>
+
+<!-- ==================== TEST ==================== -->
+<div class="section" id="test">
+  <h2>🧪 验证测试清单（达标才算成功！）</h2>
+  
+  <div class="checklist">
+    <div class="checklist-item">
+      <div class="num">1</div>
+      <div class="text"><strong>旋钮旋扣流畅度</strong>：上半下半旋扣50次，每次90°顺/逆时针旋转，<strong>顺畅不卡、无松动、无断裂</strong></div>
+      <div class="pass">✅ 合格标准</div>
+    </div>
+    <div class="checklist-item">
+      <div class="num">2</div>
+      <div class="text"><strong>内胆放置</strong>：304内胆翻边搭在上半内部台阶上，<strong>稳不晃、不会掉</strong></div>
+      <div class="pass">✅ 合格标准</div>
+    </div>
+    <div class="checklist-item">
+      <div class="num">3</div>
+      <div class="text"><strong>加热仓密封性</strong>：装300ml水晃10秒→旋进外壳整体晃10秒，<strong>任何地方无漏水渗水</strong></div>
+      <div class="pass">✅ 合格标准</div>
+    </div>
+    <div class="checklist-item">
+      <div class="num">4</div>
+      <div class="text"><strong>加热效果</strong>：80g自热包+250ml水→内胆装1L自来水→盖密封盖，<strong>10分钟内沸腾</strong>，蒸汽从泄压孔和密封盖心形孔排出</div>
+      <div class="pass">✅ 合格标准</div>
+    </div>
+    <div class="checklist-item">
+      <div class="num">5</div>
+      <div class="text"><strong>换包速度</strong>：计时"逆时针90°→拿下→倒渣→装新包→加水→顺时针90°锁止"，<strong>总耗时≤5秒</strong></div>
+      <div class="pass">✅ 合格标准</div>
+    </div>
+    <div class="checklist-item">
+      <div class="num">6</div>
+      <div class="text"><strong>连续续热</strong>：连续换3个自热包，每个间隔5秒，<strong>内胆水温始终≥95°C</strong>（用手机温度计测）</div>
+      <div class="pass">✅ 合格标准</div>
+    </div>
+    <div class="checklist-item">
+      <div class="num">7</div>
+      <div class="text"><strong>外壳温度安全</strong>：测温枪/手机热成像测上半外壳外壁和旋钮段，<strong>温度≤45°C</strong>（手摸不烫）</div>
+      <div class="pass">✅ 合格标准</div>
+    </div>
+    <div class="checklist-item">
+      <div class="num">8</div>
+      <div class="text"><strong>蒸汽排放</strong>：加热时泄压孔和密封盖心形孔正常排蒸汽，<strong>没有蒸汽从旋扣面/加水口/外壳侧面跑出来</strong></div>
+      <div class="pass">✅ 合格标准</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== IMAGES ==================== -->
+<div class="section" id="images">
+  <h2>🎨 设计效果图</h2>
+  
+  <div class="gallery">
+    <div>
+      <img src="heating-chamber-detail.png" alt="加热仓内部结构">
+      <div class="cap">加热仓内部结构剖面 · 三档水位刻度线</div>
+    </div>
+    <div>
+      <img src="quick-change-flow-v2.png" alt="旋扣快拆流程">
+      <div class="cap">旋扣快拆四步流程 · 圆形旋钮+Bayonet结构</div>
+    </div>
+    <div>
+      <img src="product-rendering.png" alt="使用中渲染">
+      <div class="cap">使用中渲染 · 红油沸腾蒸汽袅袅</div>
+    </div>
+    <div>
+      <img src="exploded-view.png" alt="爆炸分解图">
+      <div class="cap">五层爆炸分解图 · 每个部件标注</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== COST ==================== -->
+<div class="section" id="cost">
+  <h2>💰 成本与时间总览</h2>
+  
+  <h3>自己有打印机</h3>
+  <table>
+    <tr><th>项目</th><th>费用</th><th>耗时</th></tr>
+    <tr><td>🔴 上半外壳打印</td><td>~23元（80g PP丝材）</td><td>2.5小时</td></tr>
+    <tr><td>🟢 下半加热仓打印</td><td>~20元（70g PP丝材）</td><td>2小时</td></tr>
+    <tr><td>环氧树脂+砂纸</td><td>~10元</td><td>-</td></tr>
+    <tr><td>φ2mm硅胶圈</td><td>~1元（淘宝1米）</td><td>-</td></tr>
+    <tr><td>后处理（切/钻/磨）</td><td>0元</td><td>30分钟</td></tr>
+    <tr class="highlight-row"><td><strong>合计</strong></td><td><strong>~54元</strong></td><td><strong>~4.5小时</strong></td></tr>
+  </table>
+  
+  <h3>淘宝代打</h3>
+  <table>
+    <tr><th>项目</th><th>费用</th><th>耗时</th></tr>
+    <tr><td>🔴 上半外壳代打</td><td>~60元</td><td rowspan="2">打印+快递 = 48小时</td></tr>
+    <tr><td>🟢 下半加热仓代打（含环氧树脂后处理）</td><td>~70元</td></tr>
+    <tr><td>φ2mm硅胶圈</td><td>~1元</td><td>-</td></tr>
+    <tr><td>自己后处理（切加水口+钻泄压孔+磨旋钮）</td><td>0元</td><td>20分钟</td></tr>
+    <tr class="highlight-row"><td><strong>合计</strong></td><td><strong>~131元</strong></td><td><strong>48小时+20分钟</strong></td></tr>
+  </table>
+  
+  <div class="tip">
+    💡 <strong>省钱技巧：</strong>淘宝代打告诉卖家「加热仓壁厚做3.5mm保险」，
+    多发一个加热仓（多30元），以防第一次打漏水或旋钮卡，可以直接换。
+  </div>
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<div class="footer">
+  🍲 续热火锅 Pro · 分体式旋钮旋扣 · 让户外火锅自由成为可能<br>
+  本项目所有文件可直接下载用于原型打印与验证<br>
+  <a href="file:///workspace/upper_shell.stl" style="color:#ee5a52;">⬇ upper_shell.stl</a> &nbsp;|&nbsp; 
+  <a href="file:///workspace/lower_heat_chamber.stl" style="color:#ee5a52;">⬇ lower_heat_chamber.stl</a> &nbsp;|&nbsp;
+  <a href="file:///workspace/generate_stl.py" style="color:#ee5a52;">⬇ generate_stl.py</a>
+</div>
+
+</div>
+</body>
+</html>
