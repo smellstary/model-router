@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>续热火锅 Pro · 快拆加热仓设计</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f7f5f0; color: #333; line-height: 1.7; padding: 40px 20px; }
+  .container { max-width: 920px; margin: 0 auto; }
+  
+  .hero { text-align: center; margin-bottom: 45px; padding: 40px 20px; background: linear-gradient(135deg, #fff5f0 0%, #ffe0d6 100%); border-radius: 16px; }
+  .hero h1 { font-size: 38px; font-weight: 300; letter-spacing: 6px; color: #d63031; margin-bottom: 8px; }
+  .hero h1 span { font-weight: 700; color: #e17055; }
+  .hero .sub { font-size: 15px; color: #666; letter-spacing: 3px; }
+  .hero .badge { display: inline-block; padding: 5px 14px; margin: 12px 4px 0; background: #d63031; color: #fff; border-radius: 20px; font-size: 12px; }
+  
+  .section { background: #fff; border-radius: 14px; padding: 38px; margin-bottom: 28px; box-shadow: 0 3px 24px rgba(0,0,0,0.07); }
+  .section h2 { font-size: 22px; color: #d63031; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px solid #d63031; display: flex; align-items: center; }
+  .section h2::before { content: ''; display: inline-block; width: 6px; height: 22px; background: #d63031; border-radius: 3px; margin-right: 12px; }
+  
+  .ref-box { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px; }
+  .ref-card { background: #faf8f5; padding: 20px; border-radius: 10px; border-left: 4px solid #ccc; }
+  .ref-card.old { border-left-color: #b2bec3; }
+  .ref-card.new { border-left-color: #d63031; background: linear-gradient(135deg, #fff 0%, #fff5f0 100%); }
+  .ref-card h3 { font-size: 15px; margin-bottom: 10px; color: #636e72; }
+  .ref-card.new h3 { color: #d63031; }
+  .ref-card ul { list-style: none; font-size: 13px; color: #555; }
+  .ref-card li { padding: 4px 0; padding-left: 18px; position: relative; }
+  .ref-card li::before { position: absolute; left: 0; }
+  .ref-card.old li::before { content: '✗'; color: #d63031; font-weight: bold; }
+  .ref-card.new li::before { content: '✓'; color: #00b894; font-weight: bold; }
+  
+  /* 爆炸图 */
+  .exploded-view { position: relative; height: 620px; margin: 20px auto; }
+  
+  .part { position: absolute; left: 50%; transform: translateX(-50%); border-radius: 8px; text-align: center; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  
+  .lid { bottom: 520px; width: 180px; height: 28px; background: linear-gradient(180deg, #e8e8e8 0%, #c8c8c8 100%); border: 2px solid #999; }
+  .lid::before { content: '🔴'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-size: 18px; }
+  
+  .pot-outer { bottom: 300px; width: 180px; height: 215px; background: linear-gradient(180deg, #ffcdd2 0%, #ef9a9a 100%); border: 2px solid #e57373; border-radius: 10px 10px 8px 8px; position: relative; }
+  .pot-outer .label { position: absolute; top: 5px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #c62828; font-weight: bold; }
+  .pot-outer .bayonet-top { position: absolute; bottom: 0; left: 0; right: 0; height: 18px; background: #555; border-radius: 0 0 8px 8px; display: flex; justify-content: center; align-items: center; font-size: 10px; color: #fff; }
+  
+  .pot-inner { bottom: 330px; width: 158px; height: 135px; background: linear-gradient(180deg, #f5f5f5 0%, #dcdcdc 100%); border: 1.5px solid #999; border-radius: 6px; position: relative; z-index: 2; }
+  .pot-inner .label { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #555; }
+  .pot-inner .water-line { position: absolute; bottom: 30px; left: 5px; right: 5px; border-bottom: 1px dashed #4fc3f7; font-size: 9px; color: #0288d1; padding-top: 10px; }
+  
+  .chamber { bottom: 110px; width: 130px; height: 175px; background: linear-gradient(180deg, #ff6b6b 0%, #c0392b 100%); border: 2px solid #922b21; border-radius: 12px; color: #fff; position: relative; }
+  .chamber .label { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: bold; }
+  .chamber .pack { position: absolute; bottom: 40px; left: 25px; right: 25px; height: 70px; background: linear-gradient(135deg, #ffd93d 0%, #ff9500 100%); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #333; }
+  .chamber .water-port { position: absolute; right: -18px; top: 50px; width: 28px; height: 22px; background: #0288d1; border: 2px solid #01579b; border-radius: 4px; font-size: 9px; display: flex; align-items: center; justify-content: center; }
+  .chamber .bayonet-bottom { position: absolute; top: 0; left: 0; right: 0; height: 20px; background: #333; border-radius: 10px 10px 0 0; display: flex; justify-content: center; align-items: center; font-size: 10px; }
+  
+  .base { bottom: 40px; width: 120px; height: 65px; background: linear-gradient(180deg, #dfe6e9 0%, #b2bec3 100%); border: 2px solid #74b9ff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  
+  .arrow { position: absolute; left: 50%; color: #d63031; font-size: 22px; animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(5px); } }
+  
+  /* 旋扣动画示意 */
+  .twist-demo { display: flex; justify-content: space-around; align-items: flex-end; gap: 15px; margin: 25px 0; }
+  .twist-step { text-align: center; flex: 1; }
+  .twist-diagram { width: 100%; aspect-ratio: 1; max-width: 140px; margin: 0 auto 10px; position: relative; }
+  .twist-circle { position: absolute; inset: 0; border: 3px solid #d63031; border-radius: 50%; background: #fff5f0; }
+  .twist-lug { position: absolute; width: 20px; height: 10px; background: #d63031; border-radius: 3px; }
+  .twist-slot { position: absolute; width: 24px; height: 24px; border: 3px solid #00b894; border-radius: 4px; background: transparent; }
+  
+  /* 锁扣特写 */
+  .bayonet-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; margin: 25px 0; }
+  .bayonet-ring { width: 220px; height: 220px; margin: 0 auto; position: relative; }
+  .bayonet-ring .ring { position: absolute; inset: 20px; border: 8px solid #636e72; border-radius: 50%; background: #fff; }
+  .bayonet-ring .lug { position: absolute; width: 30px; height: 14px; background: #d63031; border-radius: 4px; top: 20px; left: 50%; transform: translateX(-50%); }
+  .bayonet-ring .lug2 { top: 50%; left: 20px; transform: translateY(-50%); }
+  .bayonet-ring .lug3 { top: 50%; right: 20px; transform: translateY(-50%); }
+  .bayonet-ring .arrow-a { position: absolute; top: 50%; left: 50%; color: #d63031; font-size: 28px; animation: spin 3s linear infinite; }
+  @keyframes spin { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+  
+  table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+  th, td { padding: 11px 14px; text-align: left; border-bottom: 1px solid #eee; }
+  th { background: #faf8f5; color: #d63031; font-weight: 600; }
+  tr:hover td { background: #faf8f5; }
+  td.num { color: #d63031; font-weight: bold; font-family: 'Courier New', monospace; }
+  
+  .highlight { background: linear-gradient(135deg, #fff5f0 0%, #ffe8dc 100%); padding: 18px; border-left: 4px solid #d63031; border-radius: 6px; margin: 18px 0; }
+  
+  .steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+  .step-card { background: #faf8f5; padding: 18px 12px; border-radius: 10px; text-align: center; position: relative; }
+  .step-num { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 26px; height: 26px; background: #d63031; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; }
+  .step-icon { font-size: 28px; margin: 15px 0 8px; }
+  .step-title { font-size: 13px; font-weight: bold; color: #333; }
+  .step-desc { font-size: 11px; color: #888; margin-top: 4px; }
+  
+  /* 热流示意 */
+  .heat-flow { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+  .heat-node { padding: 10px 14px; background: #ffe8dc; border: 2px solid #d63031; border-radius: 8px; font-size: 12px; text-align: center; }
+  .heat-node .t { color: #d63031; font-weight: bold; font-size: 14px; display: block; }
+  .heat-arrow { font-size: 20px; color: #d63031; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+  
+  .hot-vs-cold { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .temp-card { padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; }
+  .temp-card.hot { background: linear-gradient(90deg, #ff6b6b 0%, #d63031 100%); color: #fff; }
+  .temp-card.safe { background: linear-gradient(90deg, #55efc4 0%, #00b894 100%); color: #fff; }
+  
+  .dim-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
+  .dim-row .dim { color: #d63031; font-family: 'Courier New', monospace; font-weight: bold; }
+  
+  .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px; border-radius: 6px; font-size: 13px; margin: 15px 0; }
+  
+  .footer { text-align: center; color: #aaa; font-size: 12px; margin-top: 30px; padding-top: 18px; border-top: 1px solid #eee; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>续热火锅 <span>Pro</span></h1>
+    <div class="sub">旋扣快拆加热仓 · 参考自热饭盒结构升级</div>
+    <div>
+      <span class="badge">1500ml 容量</span>
+      <span class="badge">≤80g 自热包</span>
+      <span class="badge">3秒快拆</span>
+      <span class="badge">侧面加水</span>
+    </div>
+  </div>
+
+  <!-- 改了什么 -->
+  <div class="section">
+    <h2>· 为什么要做快拆加热仓？</h2>
+    <div class="ref-box">
+      <div class="ref-card old">
+        <h3>❌ 市面自热饭盒（参考原型）</h3>
+        <ul>
+          <li>自热包固定在底部间隙</li>
+          <li>用完后包卡死在内部</li>
+          <li>想换包必须全拆开</li>
+          <li>清理残渣很麻烦</li>
+          <li>最多15分钟火锅</li>
+        </ul>
+      </div>
+      <div class="ref-card new">
+        <h3>✓ 我们的续热火锅 Pro</h3>
+        <ul>
+          <li>加热仓是独立模块</li>
+          <li>旋扣式快拆（3秒拆卸）</li>
+          <li>倒残渣 → 换新包 → 旋回去</li>
+          <li>全程不用碰内胆/外壳</li>
+          <li>想吃多久吃多久！</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 爆炸图 -->
+  <div class="section">
+    <h2>· 结构爆炸图</h2>
+    <div class="exploded-view">
+      <div class="part lid">① 钢化玻璃锅盖 (带心形排气孔)</div>
+      <div class="part pot-outer">
+        <div class="label">② PP 外壳 (麦元素 PP5)</div>
+        <div class="bayonet-top">🔒 3 × Bayonet 锁扣卡口</div>
+      </div>
+      <div class="part pot-inner">
+        <div class="label">③ 304 不锈钢内胆</div>
+        <div>φ158mm × 78mm</div>
+        <div style="font-size:10px; color:#d63031; margin-top:4px;">可用容量 1500ml</div>
+        <div class="water-line">最低水位线 500ml ───</div>
+      </div>
+      <div class="part chamber">
+        <div class="label">④ ⚡ 快拆加热仓</div>
+        <div style="margin-top:35px; font-size:22px;">加热仓</div>
+        <div class="pack">80g 自热包</div>
+        <div class="water-port">💧 侧面<br>加水口</div>
+        <div class="bayonet-bottom">🔓 3 × 锁扣凸缘</div>
+      </div>
+      <div class="part base">⑤ 防滑底座 (硅胶脚垫 × 3)</div>
+    </div>
+    <div style="text-align:center; color:#888; font-size:12px; margin-top:10px;">从上到下依次装配：锅盖 → 内胆 → 外壳 → 快拆加热仓 → 底座</div>
+  </div>
+
+  <!-- 快拆锁扣机构 -->
+  <div class="section">
+    <h2>· 核心创新：旋扣式快拆机构</h2>
+    
+    <h3 style="color:#d63031; margin:15px 0 10px;">🔩 Bayonet 锁扣原理（仿相机镜头 / 梅森罐）</h3>
+    <div class="bayonet-detail">
+      <div>
+        <div class="bayonet-ring">
+          <div class="ring"></div>
+          <div class="lug">凸缘1</div>
+          <div class="lug lug2">凸缘2</div>
+          <div class="lug lug3">凸缘3</div>
+          <div class="arrow-a">↻</div>
+        </div>
+        <p style="text-align:center; font-size:11px; color:#888; margin-top:5px;">加热仓顶部（3个凸缘）</p>
+      </div>
+      <div>
+        <table>
+          <tr><th>参数</th><th>数值</th></tr>
+          <tr><td>锁扣数量</td><td>3 个（120° 均匀分布）</td></tr>
+          <tr><td>旋转角度</td><td>30°（推入后旋转锁定）</td></tr>
+          <tr><td>锁定行程</td><td>6mm 轴向推入 + 5mm 旋转卡入</td></tr>
+          <tr><td>解锁方式</td><td>逆时针旋 30° → 向下拉</td></tr>
+          <tr><td>锁定反馈</td><td>🔔 "咔嗒" + 弹簧止位</td></tr>
+          <tr><td>承重能力</td><td>> 15kg（水+食材总重）</td></tr>
+          <tr><td>拆卸时间</td><td>< 3 秒</td></tr>
+        </table>
+      </div>
+    </div>
+    
+    <div class="highlight">
+      <strong>💡 为什么选旋扣式而不是抽屉式？</strong><br>
+      1. 旋转锁扣比抽屉滑轨更耐高温（150°C无变形）<br>
+      2. 受力均匀，3个凸缘 120° 分布，承重更稳定<br>
+      3. 完全密封，反应气体不会泄漏<br>
+      4. 制造成本低（PP件一体成型），无金属导轨
+    </div>
+  </div>
+
+  <!-- 加热仓特写 -->
+  <div class="section">
+    <h2>· 快拆加热仓 内部结构</h2>
+    
+    <table>
+      <tr><th>区域</th><th>设计</th><th>尺寸</th></tr>
+      <tr><td>外壳</td><td>PP 食品级材质，带防滑纹</td><td>φ130 × 高 95mm</td></tr>
+      <tr><td>内部空间</td><td>放置自热包 + 反应蓄水</td><td>φ115 × 深 35mm</td></tr>
+      <tr><td>顶部托盘</td><td>纯铝导热盘，直接接触内胆底部</td><td>φ110 × 0.8mm</td></tr>
+      <tr><td>侧面加水口</td><td>翻盖式注水孔，内置导流槽</td><td>φ25mm，翻盖硅胶密封</td></tr>
+      <tr><td>泄压孔</td><td>4 × φ4mm（锁扣下方环形分布）</td><td>防止压力累积</td></tr>
+      <tr><td>Bayonet 锁扣</td><td>3 个 L 型凸缘，120° 分布</td><td>高 8mm，宽 10mm</td></tr>
+      <tr><td>底部</td><td>内嵌 3 × φ10mm 硅胶脚垫</td><td>防滑 + 隔热</td></tr>
+    </table>
+    
+    <h3 style="color:#d63031; margin:22px 0 12px;">💧 侧面加水口（关键设计！）</h3>
+    <div class="dim-row"><span>位置</span><span class="dim">加热仓侧壁 1/2 高度处</span></div>
+    <div class="dim-row"><span>设计</span><span class="dim">翻盖式 + 硅胶密封圈</span></div>
+    <div class="dim-row"><span>注水方式</span><span class="dim">翻盖 → 倒水 → 盖回（1秒完成）</span></div>
+    <div class="dim-row"><span>优势</span><span class="dim">不用拆仓就能启动新自热包！</span></div>
+    
+    <div class="warning">
+      ⚠️ 使用建议：加热中加水会让反应包剧烈沸腾，建议换包时先旋下仓，装包 → 加水 → 旋上，一次性完成
+    </div>
+  </div>
+
+  <!-- 完整尺寸 -->
+  <div class="section">
+    <h2>· 完整产品尺寸</h2>
+    
+    <table>
+      <tr><th>部件</th><th>口径</th><th>高度</th><th>说明</th></tr>
+      <tr><td>锅盖</td><td>φ175mm</td><td>20mm</td><td>钢化玻璃 + 硅胶密封圈</td></tr>
+      <tr><td>PP 外壳（上半）</td><td>φ175 → φ145mm</td><td>90mm</td><td>麦元素 PP5，双层隔热</td></tr>
+      <tr><td>304 不锈钢内胆</td><td>φ158mm</td><td>78mm</td><td>圆柱形，容量 ≈ 1528ml</td></tr>
+      <tr><td>快拆加热仓</td><td>φ130mm</td><td>95mm</td><td>含 Bayonet 锁扣</td></tr>
+      <tr><td>防滑底座</td><td>φ120mm</td><td>15mm</td><td>内嵌硅胶脚垫</td></tr>
+      <tr style="background:#ffe8e8;"><td><strong>整套高度</strong></td><td colspan="2"><strong>φ175 × 220mm</strong></td><td>比参考饭盒高 100mm（火锅容量）</td></tr>
+    </table>
+    
+    <div class="highlight">
+      <strong>📐 内胆容量验证</strong><br>
+      圆柱体积 = πr²h = 3.14 × 7.9² × 7.8 = 1528 cm³ ≈ <strong>1528 ml</strong><br>
+      顶部预留 28ml 防溢出空间，可用容量 <strong>1500ml ✓</strong>
+    </div>
+  </div>
+
+  <!-- 快拆使用流程 -->
+  <div class="section">
+    <h2>· 快拆换包 4 步走</h2>
+    
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-icon">↺</div>
+        <div class="step-title">旋下加热仓</div>
+        <div class="step-desc">逆时针旋转<br>30° 解锁</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-icon">🗑️</div>
+        <div class="step-title">倒出反应残渣</div>
+        <div class="step-desc">废水 pH≈12<br>建议醋中和</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-icon">📦</div>
+        <div class="step-title">放入新自热包</div>
+        <div class="step-desc">80g 标准包<br>加水 80ml</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-icon">↻</div>
+        <div class="step-title">旋回锁定</div>
+        <div class="step-desc">对齐卡口 → 推入<br>顺时针旋 30° 咔嗒</div>
+      </div>
+    </div>
+    
+    <div class="highlight" style="text-align:center;">
+      ⏱️ <strong>换包总耗时：<span style="font-size:28px; color:#d63031;">8 秒</span></strong>
+    </div>
+  </div>
+
+  <!-- 热传导 -->
+  <div class="section">
+    <h2>· 热传导路径（与参考饭盒一致）</h2>
+    
+    <div class="heat-flow">
+      <div class="heat-node">
+        <span class="t">180°C</span>
+        自热包反应
+      </div>
+      <span class="heat-arrow">→</span>
+      <div class="heat-node">
+        <span class="t">120°C</span>
+        蒸汽 + 热水<br>充满底部间隙
+      </div>
+      <span class="heat-arrow">→</span>
+      <div class="heat-node">
+        <span class="t">95°C</span>
+        直接接触<br>内胆底部
+      </div>
+      <span class="heat-arrow">→</span>
+      <div class="heat-node">
+        <span class="t">90°C</span>
+        加热 1500ml<br>汤底沸腾
+      </div>
+    </div>
+    
+    <div class="highlight">
+      <strong>🔥 为什么这种热传导特别高效？</strong><br>
+      参考饭盒采用的是<strong>"蒸汽包围加热"</strong>——自热包反应产生的水蒸气直接充满底部间隙，像一个小蒸锅一样包裹住内胆底部。这种方式比固体导热效率高 <strong>2-3 倍</strong>，而且加热均匀，不会像电加热那样局部过热糊底。
+    </div>
+  </div>
+
+  <!-- 温度防护 -->
+  <div class="section">
+    <h2>· 各层温度分布 & 隔热防护</h2>
+    
+    <div class="dim-row"><span>自热包反应核心</span><span class="dim" style="color:#d63031;">180°C</span></div>
+    <div class="dim-row"><span>底部间隙蒸汽</span><span class="dim" style="color:#e17055;">120°C</span></div>
+    <div class="dim-row"><span>内胆底部</span><span class="dim" style="color:#fdcb6e;">95°C</span></div>
+    <div class="dim-row"><span>内胆外壁（PP外壳内壁）</span><span class="dim" style="color:#00b894;">85°C</span></div>
+    <div class="dim-row"><span style="font-weight:bold;">PP 外壳外壁（你触摸的地方）</span><span class="dim" style="color:#0984e3;">45°C 安全！</span></div>
+    
+    <h3 style="color:#d63031; margin:20px 0 12px;">🛡️ 三层隔热防护</h3>
+    <table>
+      <tr><th>层级</th><th>设计</th><th>隔热能力</th></tr>
+      <tr><td>第1层</td><td>PP 外壳（麦元素 PP5）</td><td>天然隔热，导热系数 0.22 W/m·K</td></tr>
+      <tr><td>第2层</td><td>内胆与外壳间 2mm 空气间隙</td><td>自然对流+辐射隔热</td></tr>
+      <tr><td>第3层</td><td>加热仓底部 5mm EVA 隔热垫</td><td>导热系数 0.035 W/m·K</td></tr>
+    </table>
+  </div>
+
+  <!-- 续航方案 -->
+  <div class="section">
+    <h2>· 火锅续航方案</h2>
+    
+    <table>
+      <tr><th>使用阶段</th><th>时长</th><th>自热包数</th><th>操作建议</th></tr>
+      <tr><td>🔥 烧水沸腾</td><td>20-25 min</td><td>2-3 包</td><td>连续换包直到沸腾</td></tr>
+      <tr><td>🍲 火锅维持</td><td>90 min</td><td>6 包</td><td>每 15 min 旋下换新</td></tr>
+      <tr><td>☕ 尾声保温</td><td>20 min</td><td>1 包</td><td>最后一包慢燃</td></tr>
+      <tr style="background:#ffe8e8;"><td><strong>合计</strong></td><td><strong>~135 min</strong></td><td><strong>9-10 包</strong></td><td>总重 ≈ 720g</td></tr>
+    </table>
+    
+    <div class="highlight">
+      <strong>📦 便携方案</strong><br>
+      整套餐具 ≈ 1.3kg（含锅体） + 10 包自热包 ≈ 800g = <strong>总重 ≈ 2.1kg</strong><br>
+      加上一个保温袋，户外露营 / 办公室下午茶 / 高铁出行，吃火锅自由！
+    </div>
+  </div>
+
+  <!-- 安全提醒 -->
+  <div class="section">
+    <h2>· 安全设计</h2>
+    
+    <table>
+      <tr><th>风险</th><th>防护</th></tr>
+      <tr><td>反应压力过大</td><td>加热仓 4 × φ4mm 泄压孔 + 锅盖心形排气孔</td></tr>
+      <tr><td>外表面烫伤</td><td>三层隔热 + PP天然低热导率，外壳 < 45°C</td></tr>
+      <tr><td>加热中误拆</td><td>Bayonet 弹簧止位 + 顺时针锁止方向与逆时针重力方向相反</td></tr>
+      <tr><td>废水碱度高</td><td>标注警示 + 建议倒白醋中和后处理</td></tr>
+      <tr><td>干烧锅体</td><td>内胆最低水位线 500ml + 顶部有 "小心高温" 盲凸警示</td></tr>
+      <tr><td>自热包意外进水</td><td>加水口翻盖密封 + 硅胶密封圈</td></tr>
+    </table>
+  </div>
+
+  <!-- 最终规格 -->
+  <div class="section">
+    <h2>· 产品规格总览</h2>
+    
+    <table>
+      <tr><th style="width:35%;">项目</th><th>规格</th></tr>
+      <tr><td>产品名称</td><td>续热火锅 Pro（旋扣快拆加热仓）</td></tr>
+      <tr><td>参考原型</td><td>市面 304 自热饭盒 PP外壳 + 不锈钢内胆</td></tr>
+      <tr><td>可用容量</td><td><strong>1500 ml</strong></td></tr>
+      <tr><td>自热包规格</td><td>≤ 80g（市售标准自热包通用）</td></tr>
+      <tr><td>加热仓结构</td><td>独立快拆模块 + Bayonet 旋扣</td></tr>
+      <tr><td>快拆时间</td><td><strong>3 秒拆卸，8 秒换包完成</strong></td></tr>
+      <tr><td>加水方式</td><td>侧面翻盖加水口（或拆下仓直接倒）</td></tr>
+      <tr><td>整套续航</td><td>3+ 小时（按需配包）</td></tr>
+      <tr><td>外层材质</td><td>食品级麦元素 PP5（环保）</td></tr>
+      <tr><td>内胆材质</td><td>食品级 304 不锈钢</td></tr>
+      <tr><td>加热仓材质</td><td>PP 外壳 + 纯铝导热托盘</td></tr>
+      <tr><td>整套尺寸</td><td>φ175 × 220 mm</td></tr>
+      <tr><td>整套重量</td><td>≈ 1.3 kg（不含自热包）</td></tr>
+      <tr><td>外壳表面温度</td><td><strong>< 45°C（安全触摸）</strong></td></tr>
+      <tr><td>适用场景</td><td>户外露营 / 办公室 / 高铁飞机 / 移动餐饮</td></tr>
+    </table>
+  </div>
+
+  <div class="footer">
+    参考结构：304自热饭盒 · 核心升级：旋扣快拆加热仓 · 让火锅自由成为可能 🍲
+  </div>
+
+</div>
+
+</body>
+</html>
