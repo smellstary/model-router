@@ -449,7 +449,7 @@ class EthicalJudgmentSystem:
         
         if ren_yi_harmony > 0.8:
             unity_judgment = "仁义协调"
-        elif ren_yy_harmony > 0.5:
+        elif ren_yi_harmony > 0.5:
             unity_judgment = "仁义基本一致"
         else:
             unity_judgment = "仁义需要调和"

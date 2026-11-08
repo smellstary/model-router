@@ -1,4 +1,12 @@
 """
+DEPRECATED: 本文件已废弃，请勿作为运行入口。
+
+唯一运行入口：
+- 对话内核：core/agent.py 的 OrientalWisdomAgent
+- HTTP 服务：integration/api_server_secure.py
+
+保留本文件只为对照旧的自包含实现，不再维护，也不要在启动脚本里引用它。
+
 Oriental Wisdom Agent System - Complete Self-Contained Implementation
 东方智慧智能体系统 - 完整自包含实现
 

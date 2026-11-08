@@ -88,14 +88,17 @@ class ThinkingSystem:
         )
         
         ethical_result = self._analyze_ethical(context)
+        ethical_eval = None  # 从 List[ReasoningStep] 提取第一个 EthicalEvaluation
         if ethical_result:
             reasoning_trace.extend(ethical_result)
-        
+            # ReasoningStep.conclusion 字段存的就是 EthicalEvaluation
+            ethical_eval = ethical_result[0].conclusion if ethical_result else None
+
         zhongyong_result = self.ethical_system.make_zhongyong_decision(
             context.available_options,
             {'situation': context.situation}
         )
-        
+
         wuwei_result = self.dialectical_system.make_wuwei_decision(
             context.situation,
             context.available_options
@@ -110,27 +113,27 @@ class ThinkingSystem:
         
         confidence = self._calculate_confidence(
             dialectical_result,
-            ethical_result,
+            ethical_eval,
             zhongyong_result
         )
-        
+
         philosophy_contributions = {
             '佛家': self._estimate_buddhist_contribution(reasoning_trace),
             '道家': self._estimate_taoist_contribution(dialectical_result),
-            '儒家': self._estimate_confucian_contribution(ethical_result)
+            '儒家': self._estimate_confucian_contribution(ethical_eval)
         }
-        
+
         result = ThinkingResult(
             conclusion=conclusion,
             reasoning_trace=reasoning_trace,
             causal_analysis=None,
             dialectical_analysis=dialectical_result,
-            ethical_evaluation=ethical_result,
+            ethical_evaluation=ethical_eval,
             confidence=confidence,
             alternatives_considered=context.available_options,
             recommended_actions=self._generate_recommendations(
                 dialectical_result,
-                ethical_result,
+                ethical_eval,
                 zhongyong_result
             ),
             philosophy_contributions=philosophy_contributions
